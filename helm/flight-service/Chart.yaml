@@ -1,0 +1,6 @@
+apiVersion: v2
+name: flight-service
+description: Mini flight service for the AOS Commissioning Kit
+type: application
+version: 0.1.0        # version of the chart (the recipe card)
+appVersion: "0.1"     # version of the app being deployed (the pizza)

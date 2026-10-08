@@ -1,0 +1,40 @@
+# Deployment: tells Kubernetes how many copies (pods) of the service must run.
+# If a pod dies, Kubernetes creates a new one automatically (self-healing).
+# The values written with double curly braces below come from values.yaml (the "blanks" in the recipe card).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flight-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: flight-service      # which pods this Deployment manages
+  template:                    # the blueprint for every pod
+    metadata:
+      labels:
+        app: flight-service    # must match selector.matchLabels above
+    spec:
+      containers:
+        - name: flight-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          # Readiness: only send traffic once the app answers /health.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          # Liveness: restart the container if /health stops answering.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          # requests = what the pod needs at least, limits = the most it may use.
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

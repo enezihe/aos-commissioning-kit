@@ -1,0 +1,22 @@
+# Default values for the flight-service chart.
+# Each environment (kind, OpenShift) can override these with its own file or --set.
+
+replicaCount: 2            # how many pods to keep running
+
+image:
+  repository: flight-service
+  tag: "0.1"
+  pullPolicy: IfNotPresent # use the image already present on the node
+
+containerPort: 8000        # port uvicorn listens on inside the container
+
+service:
+  port: 80                 # port other workloads use to reach the Service
+
+resources:
+  requests:                # the minimum the pod needs
+    cpu: 50m
+    memory: 64Mi
+  limits:                  # the most the pod may use
+    cpu: 200m
+    memory: 128Mi
