@@ -131,7 +131,7 @@
       <tr><th>Phase</th><th>Focus</th><th>Status</th></tr>
       <tr><td>0</td><td>Environment: Docker, kind, kubectl, helm, oc</td><td><span class="pill done">done</span></td></tr>
       <tr><td>1</td><td>Flight service API and container image</td><td><span class="pill done">done</span></td></tr>
-      <tr><td>2</td><td>Deploy to kind: manifests, then Helm</td><td><span class="pill wip">next</span></td></tr>
+      <tr><td>2</td><td>Deploy to kind: manifests, then Helm</td><td><span class="pill wip">in progress</span></td></tr>
       <tr><td>3</td><td>Deploy to OpenShift (Developer Sandbox)</td><td><span class="pill todo">planned</span></td></tr>
       <tr><td>4</td><td>Config pack CLI: validate, diff, upload</td><td><span class="pill todo">planned</span></td></tr>
       <tr><td>5</td><td>Deliberately broken deployments, log analysis</td><td><span class="pill todo">planned</span></td></tr>
@@ -151,7 +151,25 @@
       <tr><td><code>POST /flights</code></td><td>201 on create, 409 if duplicate, 422 on invalid body</td></tr>
       <tr><td><code>PATCH /flights/{no}</code></td><td>Update gate, 404 if the flight does not exist</td></tr>
     </table>
-    <p style="color:var(--muted)">Known limitation: data lives in memory and is lost on restart. This is the starting point for a Phase 2 discussion on stateless pods.</p>
+    <p style="color:var(--muted)">Known limitation: data lives in memory and is lost on restart, and replicas do not share it. See the key lesson on the next slide.</p>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Key lesson</span>
+    <h2>One shared notebook: keep state outside the pod</h2>
+    <p class="lead">Observed in Phase 2: two replicas behind one Service gave different answers to the same request.</p>
+    <div class="grid">
+      <div class="card"><h3>What happened</h3><p>A flight was created through the Service. It landed in one pod's memory. Eight identical <code>GET /flights</code> calls from inside the cluster returned the flight 4 times and an empty list 4 times.</p></div>
+      <div class="card"><h3>Why</h3><p>Each pod keeps flights in its own memory, like two pizza makers with two separate notebooks. The Service spreads requests across both.</p></div>
+      <div class="card"><h3>The fix</h3><p>Move the data out of the pod into a shared database (PostgreSQL), so every replica reads and writes the same notebook.</p></div>
+    </div>
+    <table>
+      <tr><th></th><th>Meaning</th><th>Our flight service</th></tr>
+      <tr><td><strong>Stateless</strong></td><td>A pod remembers nothing. Copy it as often as needed.</td><td>What it should be</td></tr>
+      <tr><td><strong>Stateful</strong></td><td>Stores data. Copying it is hard and needs care.</td><td>The database</td></tr>
+    </table>
+    <p style="color:var(--muted)">Today the service is meant to be stateless but keeps state in memory, the worst of both worlds. The database is planned for a later phase. Phase 2 stays focused on deployment mechanics, and the flaw is documented on purpose. Scaling to one replica would hide the symptom but remove redundancy.</p>
+    <p style="color:var(--muted)">In an implementation role, spotting this kind of symptom and naming its cause ("state is not shared between replicas") is exactly the diagnosis a customer needs.</p>
   </section>
 
   <section class="slide">

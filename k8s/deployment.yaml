@@ -1,0 +1,45 @@
+# Deployment: tells Kubernetes how many copies (pods) of the service must run.
+# If a pod dies, Kubernetes creates a new one automatically (self-healing).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flight-service
+spec:
+  replicas: 2                  # keep 2 pods running at all times
+  selector:
+    matchLabels:
+      app: flight-service      # which pods this Deployment manages
+  template:                    # the blueprint for every pod
+    metadata:
+      labels:
+        app: flight-service    # must match selector.matchLabels above
+    spec:
+      containers:
+        - name: flight-service
+          image: flight-service:0.1
+          imagePullPolicy: IfNotPresent   # use the image already loaded into kind
+          ports:
+            - containerPort: 8000         # uvicorn listens here
+          # Readiness: only send traffic once the app answers /health.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          # Liveness: restart the container if /health stops answering.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          # requests = what the pod needs at least, limits = the most it may use.
+          # 50m = 0.05 CPU core (1000m = 1 core).
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

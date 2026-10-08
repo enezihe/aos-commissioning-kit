@@ -1,0 +1,13 @@
+# Service: a stable address (like a shop's cash desk) in front of the changing pods.
+apiVersion: v1
+kind: Service
+metadata:
+  name: flight-service
+spec:
+  # Send traffic to every pod that carries this label.
+  # It must match the labels in deployment.yaml.
+  selector:
+    app: flight-service
+  ports:
+    - port: 80          # the port clients use to reach the Service
+      targetPort: 8000  # the port the container listens on (uvicorn)
