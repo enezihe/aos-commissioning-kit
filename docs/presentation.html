@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AOS Commissioning Kit</title>
+<style>
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --line: #334155;
+    --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8;
+    --done: #34d399; --wip: #fbbf24; --todo: #64748b;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f8fafc; --panel: #ffffff; --line: #cbd5e1;
+      --text: #0f172a; --muted: #475569; --accent: #0369a1;
+      --done: #047857; --wip: #b45309; --todo: #64748b;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+  }
+  .deck { height: 100%; position: relative; }
+  .slide {
+    position: absolute; inset: 0; padding: 6vh 8vw 10vh;
+    display: none; flex-direction: column; justify-content: center; gap: 2.2vh;
+  }
+  .slide.active { display: flex; }
+  h1 { font-size: clamp(34px, 5.5vw, 68px); line-height: 1.1; margin: 0; }
+  h2 { font-size: clamp(26px, 3.4vw, 42px); margin: 0 0 1vh; color: var(--accent); }
+  p, li { color: var(--text); max-width: 62ch; }
+  .lead { font-size: clamp(18px, 2vw, 26px); color: var(--muted); max-width: 52ch; }
+  .tag { color: var(--accent); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; }
+  ul { margin: 0; padding-left: 1.2em; display: grid; gap: .6em; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 16px; }
+  table { border-collapse: collapse; width: 100%; max-width: 980px; font-size: 16px; }
+  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .node { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font-weight: 600; }
+  .node small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+  .arrow { color: var(--muted); font-size: 22px; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid currentColor; white-space: nowrap; }
+  .done { color: var(--done); } .wip { color: var(--wip); } .todo { color: var(--todo); }
+  .nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; color: var(--muted); font-size: 14px; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width .2s; }
+  button { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 14px; cursor: pointer; font: inherit; }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media print {
+    body { overflow: visible; background: #fff; color: #000; }
+    .slide { display: flex !important; position: static; height: 100vh; page-break-after: always; }
+    .nav, .bar { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<main class="deck" id="deck">
+
+  <section class="slide">
+    <span class="tag">Hands-on engineering project</span>
+    <h1>AOS Commissioning Kit</h1>
+    <p class="lead">Deploying, configuring and troubleshooting a mini Airport Operational System on Kubernetes and OpenShift.</p>
+    <p class="mono" style="color:var(--muted)">Python &middot; Docker &middot; Kubernetes &middot; Helm &middot; OpenShift &middot; AI-assisted log analysis</p>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Purpose</span>
+    <h2>What this project is for</h2>
+    <p class="lead">An implementation engineer's day is not only writing code. It is deploying, configuring, validating, diagnosing and explaining.</p>
+    <ul>
+      <li>Practise the full delivery loop: build, containerize, deploy, configure, verify, troubleshoot, document.</li>
+      <li>Work the way a commissioning project works: stage gates and readiness criteria before go-live.</li>
+      <li>Build hands-on fluency with container platforms, not just theory.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Scenario</span>
+    <h2>A fictional airport goes live</h2>
+    <p class="lead">A small operational system is installed for an imaginary airport. Each component mirrors a real integration point.</p>
+    <div class="grid">
+      <div class="card"><h3>Flight service</h3><p>Airport-database style API: flights, gates, status updates.</p></div>
+      <div class="card"><h3>FIDS consumer</h3><p>Reads flight events for information displays.</p></div>
+      <div class="card"><h3>Baggage simulator</h3><p>Baggage handling subsystem that depends on gate and flight data.</p></div>
+      <div class="card"><h3>Config pack</h3><p>Gates, stands, carousels and airlines as validated definitions.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Architecture</span>
+    <h2>From code to a running service</h2>
+    <div class="flow">
+      <div class="node">Code<small>FastAPI</small></div><span class="arrow">&rarr;</span>
+      <div class="node">Dockerfile</div><span class="arrow">&rarr;</span>
+      <div class="node">Image<small>flight-service:0.1</small></div><span class="arrow">&rarr;</span>
+      <div class="node">Deployment<small>Pods</small></div><span class="arrow">&rarr;</span>
+      <div class="node">Service / Route<small>stable address</small></div>
+    </div>
+    <p class="lead" style="margin-top:2vh">Develop locally on <strong>kind</strong>, then verify the same Helm charts on a real <strong>OpenShift</strong> cluster (Red Hat Developer Sandbox).</p>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Technology</span>
+    <h2>Tools and why they are used</h2>
+    <table>
+      <tr><th>Tool</th><th>Role in the project</th></tr>
+      <tr><td>Python, FastAPI, Pydantic</td><td>Services, request validation, config validation CLI</td></tr>
+      <tr><td>Docker</td><td>Packaging services as container images</td></tr>
+      <tr><td>kind, kubectl</td><td>Local Kubernetes cluster and its CLI</td></tr>
+      <tr><td>Helm</td><td>Repeatable, parameterised deployments</td></tr>
+      <tr><td>OpenShift, oc</td><td>Target platform: Routes, security constraints, rollouts</td></tr>
+      <tr><td>Claude API</td><td>Log triage, root-cause hints, requirement analysis (human reviews output)</td></tr>
+      <tr><td>Git, GitHub Actions</td><td>Branch-per-phase workflow, pull requests, CI</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Roadmap</span>
+    <h2>Eight phases</h2>
+    <table>
+      <tr><th>Phase</th><th>Focus</th><th>Status</th></tr>
+      <tr><td>0</td><td>Environment: Docker, kind, kubectl, helm, oc</td><td><span class="pill done">done</span></td></tr>
+      <tr><td>1</td><td>Flight service API and container image</td><td><span class="pill done">done</span></td></tr>
+      <tr><td>2</td><td>Deploy to kind: manifests, then Helm</td><td><span class="pill wip">next</span></td></tr>
+      <tr><td>3</td><td>Deploy to OpenShift (Developer Sandbox)</td><td><span class="pill todo">planned</span></td></tr>
+      <tr><td>4</td><td>Config pack CLI: validate, diff, upload</td><td><span class="pill todo">planned</span></td></tr>
+      <tr><td>5</td><td>Deliberately broken deployments, log analysis</td><td><span class="pill todo">planned</span></td></tr>
+      <tr><td>6</td><td>AI log triage and readiness checker</td><td><span class="pill todo">planned</span></td></tr>
+      <tr><td>7</td><td>Runbook, training material, lessons learned</td><td><span class="pill todo">planned</span></td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Progress</span>
+    <h2>What works today</h2>
+    <p class="lead">The flight service runs as a container image and answers the full API.</p>
+    <table>
+      <tr><th>Endpoint</th><th>Behaviour</th></tr>
+      <tr><td><code>GET /health</code></td><td>Liveness check, used later by Kubernetes probes</td></tr>
+      <tr><td><code>GET /flights</code></td><td>List flights</td></tr>
+      <tr><td><code>POST /flights</code></td><td>201 on create, 409 if duplicate, 422 on invalid body</td></tr>
+      <tr><td><code>PATCH /flights/{no}</code></td><td>Update gate, 404 if the flight does not exist</td></tr>
+    </table>
+    <p style="color:var(--muted)">Known limitation: data lives in memory and is lost on restart. This is the starting point for a Phase 2 discussion on stateless pods.</p>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Role alignment</span>
+    <h2>Skills this project exercises</h2>
+    <div class="grid">
+      <div class="card"><h3>Deployment and commissioning</h3><p>Install, configure and verify services in container platforms.</p></div>
+      <div class="card"><h3>Configuration management</h3><p>Validate and upload system definitions with dry-run and rollback.</p></div>
+      <div class="card"><h3>Troubleshooting</h3><p>Read application and platform logs, find root cause, decide to fix or escalate.</p></div>
+      <div class="card"><h3>Documentation and training</h3><p>Runbooks and short guides written for operators and customer staff.</p></div>
+      <div class="card"><h3>AI-enabled working</h3><p>Use AI to speed up analysis while keeping judgment and verification human.</p></div>
+      <div class="card"><h3>Integration thinking</h3><p>Understand how operational subsystems depend on each other.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="tag">Way of working</span>
+    <h2>How the project is built</h2>
+    <ul>
+      <li>One Git branch per phase, small commits with conventional prefixes (<code>feat:</code>, <code>docs:</code>).</li>
+      <li>Every phase ends with a short self-check on the concepts behind it.</li>
+      <li>Failures are treated as material: each broken state becomes a troubleshooting exercise.</li>
+      <li>Documentation is written as the work happens, not afterwards.</li>
+    </ul>
+  </section>
+
+</main>
+
+<div class="nav">
+  <button id="prev" aria-label="Previous slide">&larr; Prev</button>
+  <span id="count"></span>
+  <button id="next" aria-label="Next slide">Next &rarr;</button>
+</div>
+
+<script>
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0;
+  try { var saved = parseInt(location.hash.slice(1), 10); if (saved >= 1 && saved <= slides.length) i = saved - 1; } catch (e) {}
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
+    document.getElementById('count').textContent = (i + 1) + ' / ' + slides.length;
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  document.getElementById('prev').onclick = function () { show(i - 1); };
+  document.getElementById('next').onclick = function () { show(i + 1); };
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(slides.length - 1);
+  });
+  show(i);
+</script>
+</body>
+</html>
