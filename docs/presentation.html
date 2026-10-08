@@ -6,87 +6,140 @@
 <title>AOS Commissioning Kit</title>
 <style>
   :root {
-    --bg: #0f172a; --panel: #1e293b; --line: #334155;
-    --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8;
-    --done: #34d399; --wip: #fbbf24; --todo: #64748b;
+    --bg: #fbfbfa; --ink: #0e0e10; --muted: #5f6368; --line: #e6e4df;
+    --card: #ffffff; --accent: #c1253f; --done: #1a7f4b; --chip: #ffffff;
   }
-  @media (prefers-color-scheme: light) {
+  @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #f8fafc; --panel: #ffffff; --line: #cbd5e1;
-      --text: #0f172a; --muted: #475569; --accent: #0369a1;
-      --done: #047857; --wip: #b45309; --todo: #64748b;
+      --bg: #0f0f11; --ink: #f2f2f3; --muted: #a0a3a8; --line: #2a2a2e;
+      --card: #17171a; --accent: #ff6b83; --done: #3ecf8e; --chip: #17171a;
     }
   }
   * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
   body {
-    background: var(--bg); color: var(--text);
-    font: 18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow: hidden;
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
-  .deck { height: 100%; position: relative; }
-  .slide {
-    position: absolute; inset: 0; padding: 6vh 8vw 10vh;
-    display: none; flex-direction: column; justify-content: center; gap: 2.2vh;
-  }
-  .slide.active { display: flex; }
-  h1 { font-size: clamp(34px, 5.5vw, 68px); line-height: 1.1; margin: 0; }
-  h2 { font-size: clamp(26px, 3.4vw, 42px); margin: 0 0 1vh; color: var(--accent); }
-  p, li { color: var(--text); max-width: 62ch; }
-  .lead { font-size: clamp(18px, 2vw, 26px); color: var(--muted); max-width: 52ch; }
-  .tag { color: var(--accent); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; }
-  ul { margin: 0; padding-left: 1.2em; display: grid; gap: .6em; }
-  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
-  .card h3 { margin: 0 0 6px; font-size: 18px; }
-  .card p { margin: 0; color: var(--muted); font-size: 16px; }
-  table { border-collapse: collapse; width: 100%; max-width: 980px; font-size: 16px; }
-  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
-  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); max-width: 1320px; margin: 0 auto; }
+
+  /* Left menu */
+  aside { position: sticky; top: 0; align-self: start; height: 100vh; padding: 56px 24px 32px 40px; overflow-y: auto; }
+  .brand { font-size: 13px; color: var(--muted); letter-spacing: .04em; margin-bottom: 28px; }
+  .brand strong { display: block; color: var(--ink); font-size: 15px; letter-spacing: 0; }
+  .toc-title { font-size: 12px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+  nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  nav a { display: flex; gap: 14px; align-items: baseline; padding: 7px 0; color: var(--muted); text-decoration: none; font-size: 15.5px; }
+  nav a .n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--muted); opacity: .8; }
+  nav a:hover { color: var(--ink); }
+  nav a.active { color: var(--ink); font-weight: 600; }
+  nav a.active .n { color: var(--accent); opacity: 1; }
+  nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  /* Right content */
+  main { padding: 56px 56px 120px 24px; }
+  section { padding-bottom: 96px; }
+  .secnum { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--accent); font-size: 15px; }
+  h1 { font-size: clamp(40px, 6.4vw, 88px); line-height: 1.02; letter-spacing: -.035em; font-weight: 800; margin: 10px 0 22px; }
+  h3 { margin: 0 0 6px; font-size: 18px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; padding: 5px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--chip); color: var(--ink); }
+  .lead { font-size: 19px; color: var(--muted); max-width: 66ch; margin: 0 0 28px; }
+  p { max-width: 70ch; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 15.5px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  tr:last-child td { border-bottom: 0; }
+
   .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-  .node { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font-weight: 600; }
+  .node { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; font-weight: 600; }
   .node small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
   .arrow { color: var(--muted); font-size: 22px; }
-  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid currentColor; white-space: nowrap; }
-  .done { color: var(--done); } .wip { color: var(--wip); } .todo { color: var(--todo); }
-  .nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; color: var(--muted); font-size: 14px; }
-  .bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width .2s; }
-  button { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 14px; cursor: pointer; font: inherit; }
-  button:hover { border-color: var(--accent); }
-  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  @media print {
-    body { overflow: visible; background: #fff; color: #000; }
-    .slide { display: flex !important; position: static; height: 100vh; page-break-after: always; }
-    .nav, .bar { display: none; }
+
+  /* Roadmap */
+  .progress { display: flex; align-items: center; gap: 16px; margin: 6px 0 22px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; }
+  .bar { flex: 1; height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .5s; }
+  .phases { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .phase { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px 20px; }
+  .phase header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .phase .lvl { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: .08em; color: var(--accent); text-transform: uppercase; }
+  .phase .cnt { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+  .phase h3 { font-size: 21px; margin: 4px 0 12px; }
+  .phase.next { border-color: var(--accent); }
+  .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .task { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; color: var(--muted); }
+  .task .box { flex: none; width: 20px; height: 20px; margin-top: 1px; border: 1.5px solid var(--line); border-radius: 6px; display: grid; place-items: center; }
+  .task.done { color: var(--ink); }
+  .task.done .box { background: var(--done); border-color: var(--done); }
+  .task.done .box::after { content: ""; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px); }
+
+  .note { color: var(--muted); font-size: 15.5px; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: sticky; z-index: 5; height: auto; padding: 12px 16px; background: var(--bg); border-bottom: 1px solid var(--line); overflow-x: auto; }
+    .brand, .toc-title { display: none; }
+    nav ol { display: flex; gap: 18px; }
+    nav a { white-space: nowrap; padding: 4px 0; }
+    main { padding: 32px 16px 80px; }
+    section { padding-bottom: 64px; }
   }
+  @media print { aside { display: none; } .layout { display: block; } section { page-break-inside: avoid; } }
 </style>
 </head>
 <body>
-<div class="bar" id="bar"></div>
-<main class="deck" id="deck">
+<div class="layout">
 
-  <section class="slide">
-    <span class="tag">Hands-on engineering project</span>
+<aside>
+  <div class="brand mono"><strong>AOS Commissioning Kit</strong>hands-on delivery project</div>
+  <div class="toc-title mono">Contents</div>
+  <nav aria-label="Contents">
+    <ol>
+      <li><a href="#purpose"><span class="n">01</span>Purpose</a></li>
+      <li><a href="#scenario"><span class="n">02</span>Scenario</a></li>
+      <li><a href="#architecture"><span class="n">03</span>Architecture</a></li>
+      <li><a href="#technology"><span class="n">04</span>Technology</a></li>
+      <li><a href="#roadmap"><span class="n">05</span>Roadmap</a></li>
+      <li><a href="#progress"><span class="n">06</span>What works today</a></li>
+      <li><a href="#lesson"><span class="n">07</span>Key lesson</a></li>
+      <li><a href="#skills"><span class="n">08</span>Role alignment</a></li>
+      <li><a href="#workflow"><span class="n">09</span>Way of working</a></li>
+    </ol>
+  </nav>
+</aside>
+
+<main>
+
+  <section id="purpose">
+    <span class="secnum">01</span>
     <h1>AOS Commissioning Kit</h1>
-    <p class="lead">Deploying, configuring and troubleshooting a mini Airport Operational System on Kubernetes and OpenShift.</p>
-    <p class="mono" style="color:var(--muted)">Python &middot; Docker &middot; Kubernetes &middot; Helm &middot; OpenShift &middot; AI-assisted log analysis</p>
+    <div class="chips">
+      <span class="chip">Hands-on project</span>
+      <span class="chip">Kubernetes &amp; OpenShift</span>
+      <span class="chip">Phase 2 of 7 complete</span>
+    </div>
+    <p class="lead">Deploying, configuring and troubleshooting a mini Airport Operational System. An implementation engineer's day is not only writing code: it is deploying, configuring, validating, diagnosing and explaining.</p>
+    <div class="grid">
+      <div class="card"><h3>Full delivery loop</h3><p>Build, containerize, deploy, configure, verify, troubleshoot, document.</p></div>
+      <div class="card"><h3>Stage gates</h3><p>Work like a commissioning project: readiness criteria are met before go-live.</p></div>
+      <div class="card"><h3>Platform fluency</h3><p>Hands-on practice with container platforms, not just theory.</p></div>
+    </div>
   </section>
 
-  <section class="slide">
-    <span class="tag">Purpose</span>
-    <h2>What this project is for</h2>
-    <p class="lead">An implementation engineer's day is not only writing code. It is deploying, configuring, validating, diagnosing and explaining.</p>
-    <ul>
-      <li>Practise the full delivery loop: build, containerize, deploy, configure, verify, troubleshoot, document.</li>
-      <li>Work the way a commissioning project works: stage gates and readiness criteria before go-live.</li>
-      <li>Build hands-on fluency with container platforms, not just theory.</li>
-    </ul>
-  </section>
-
-  <section class="slide">
-    <span class="tag">Scenario</span>
-    <h2>A fictional airport goes live</h2>
+  <section id="scenario">
+    <span class="secnum">02</span>
+    <h1>Scenario</h1>
+    <div class="chips"><span class="chip">Fictional airport</span><span class="chip">Real integration points</span></div>
     <p class="lead">A small operational system is installed for an imaginary airport. Each component mirrors a real integration point.</p>
     <div class="grid">
       <div class="card"><h3>Flight service</h3><p>Airport-database style API: flights, gates, status updates.</p></div>
@@ -94,136 +147,237 @@
       <div class="card"><h3>Baggage simulator</h3><p>Baggage handling subsystem that depends on gate and flight data.</p></div>
       <div class="card"><h3>Config pack</h3><p>Gates, stands, carousels and airlines as validated definitions.</p></div>
     </div>
+    <p class="note">Today only the flight service exists. The others are planned.</p>
   </section>
 
-  <section class="slide">
-    <span class="tag">Architecture</span>
-    <h2>From code to a running service</h2>
-    <div class="flow">
-      <div class="node">Code<small>FastAPI</small></div><span class="arrow">&rarr;</span>
-      <div class="node">Dockerfile</div><span class="arrow">&rarr;</span>
-      <div class="node">Image<small>flight-service:0.1</small></div><span class="arrow">&rarr;</span>
-      <div class="node">Deployment<small>Pods</small></div><span class="arrow">&rarr;</span>
-      <div class="node">Service / Route<small>stable address</small></div>
+  <section id="architecture">
+    <span class="secnum">03</span>
+    <h1>Architecture</h1>
+    <div class="chips"><span class="chip">kind for development</span><span class="chip">OpenShift for verification</span></div>
+    <p class="lead">From code to a running service. Develop locally on kind, then verify the same Helm chart on a real OpenShift cluster (Red Hat Developer Sandbox).</p>
+    <div class="panel">
+      <div class="flow">
+        <div class="node">Code<small>FastAPI</small></div><span class="arrow">&rarr;</span>
+        <div class="node">Dockerfile</div><span class="arrow">&rarr;</span>
+        <div class="node">Image<small>flight-service:0.1</small></div><span class="arrow">&rarr;</span>
+        <div class="node">Helm chart</div><span class="arrow">&rarr;</span>
+        <div class="node">Deployment<small>2 pods</small></div><span class="arrow">&rarr;</span>
+        <div class="node">Service / Route<small>stable address</small></div>
+      </div>
     </div>
-    <p class="lead" style="margin-top:2vh">Develop locally on <strong>kind</strong>, then verify the same Helm charts on a real <strong>OpenShift</strong> cluster (Red Hat Developer Sandbox).</p>
   </section>
 
-  <section class="slide">
-    <span class="tag">Technology</span>
-    <h2>Tools and why they are used</h2>
-    <table>
-      <tr><th>Tool</th><th>Role in the project</th></tr>
-      <tr><td>Python, FastAPI, Pydantic</td><td>Services, request validation, config validation CLI</td></tr>
-      <tr><td>Docker</td><td>Packaging services as container images</td></tr>
-      <tr><td>kind, kubectl</td><td>Local Kubernetes cluster and its CLI</td></tr>
-      <tr><td>Helm</td><td>Repeatable, parameterised deployments</td></tr>
-      <tr><td>OpenShift, oc</td><td>Target platform: Routes, security constraints, rollouts</td></tr>
-      <tr><td>Claude API</td><td>Log triage, root-cause hints, requirement analysis (human reviews output)</td></tr>
-      <tr><td>Git, GitHub Actions</td><td>Branch-per-phase workflow, pull requests, CI</td></tr>
-    </table>
+  <section id="technology">
+    <span class="secnum">04</span>
+    <h1>Technology</h1>
+    <div class="chips"><span class="chip">7 tool groups</span><span class="chip">Open source first</span></div>
+    <div class="panel">
+      <table>
+        <tr><th>Tool</th><th>Role in the project</th></tr>
+        <tr><td>Python, FastAPI, Pydantic</td><td>Services, request validation, config validation CLI</td></tr>
+        <tr><td>Docker</td><td>Packaging services as container images</td></tr>
+        <tr><td>kind, kubectl</td><td>Local Kubernetes cluster and its CLI</td></tr>
+        <tr><td>Helm</td><td>Repeatable, parameterised deployments with upgrade and rollback</td></tr>
+        <tr><td>OpenShift, oc</td><td>Target platform: Routes, security constraints, rollouts</td></tr>
+        <tr><td>Claude API</td><td>Log triage, root-cause hints, requirement analysis (a human reviews the output)</td></tr>
+        <tr><td>Git, GitHub Actions</td><td>Branch-per-phase workflow, pull requests, CI</td></tr>
+      </table>
+    </div>
   </section>
 
-  <section class="slide">
-    <span class="tag">Roadmap</span>
-    <h2>Eight phases</h2>
-    <table>
-      <tr><th>Phase</th><th>Focus</th><th>Status</th></tr>
-      <tr><td>0</td><td>Environment: Docker, kind, kubectl, helm, oc</td><td><span class="pill done">done</span></td></tr>
-      <tr><td>1</td><td>Flight service API and container image</td><td><span class="pill done">done</span></td></tr>
-      <tr><td>2</td><td>Deploy to kind: manifests, then Helm</td><td><span class="pill done">done</span></td></tr>
-      <tr><td>3</td><td>Deploy to OpenShift (Developer Sandbox)</td><td><span class="pill wip">next</span></td></tr>
-      <tr><td>4</td><td>Config pack CLI: validate, diff, upload</td><td><span class="pill todo">planned</span></td></tr>
-      <tr><td>5</td><td>Deliberately broken deployments, log analysis</td><td><span class="pill todo">planned</span></td></tr>
-      <tr><td>6</td><td>AI log triage and readiness checker</td><td><span class="pill todo">planned</span></td></tr>
-      <tr><td>7</td><td>Runbook, training material, lessons learned</td><td><span class="pill todo">planned</span></td></tr>
-    </table>
+  <section id="roadmap">
+    <span class="secnum">05</span>
+    <h1>Roadmap</h1>
+    <div class="chips"><span class="chip">8 phases</span><span class="chip">26 tasks</span></div>
+    <p class="lead">The roadmap shows only what is really finished. Checked boxes are work that ran and was verified.</p>
+    <div class="progress"><span id="progress-text">0 / 0 tasks</span><div class="bar"><i id="progress-bar"></i></div></div>
+
+    <div class="phases">
+      <article class="phase">
+        <header><span class="lvl">Phase 0 &middot; done</span><span class="cnt"></span></header>
+        <h3>Environment</h3>
+        <ul class="tasks">
+          <li class="task done"><span class="box"></span>Install Docker, kind, kubectl, helm and oc</li>
+          <li class="task done"><span class="box"></span><span>Create a local cluster (<code>aos-dev</code>)</span></li>
+          <li class="task done"><span class="box"></span>Document the setup in the README</li>
+        </ul>
+      </article>
+
+      <article class="phase">
+        <header><span class="lvl">Phase 1 &middot; done</span><span class="cnt"></span></header>
+        <h3>Flight service</h3>
+        <ul class="tasks">
+          <li class="task done"><span class="box"></span>Write a FastAPI service with list, create and update endpoints</li>
+          <li class="task done"><span class="box"></span>Validate input with Pydantic (201, 404, 409, 422)</li>
+          <li class="task done"><span class="box"></span>Containerize it with a Dockerfile</li>
+        </ul>
+      </article>
+
+      <article class="phase">
+        <header><span class="lvl">Phase 2 &middot; done</span><span class="cnt"></span></header>
+        <h3>Kubernetes and Helm</h3>
+        <ul class="tasks">
+          <li class="task done"><span class="box"></span>Deploy with a Deployment and a Service</li>
+          <li class="task done"><span class="box"></span>Add readiness and liveness probes, resource requests and limits</li>
+          <li class="task done"><span class="box"></span>Package everything as a Helm chart</li>
+          <li class="task done"><span class="box"></span>Practise upgrade and rollback</li>
+        </ul>
+      </article>
+
+      <article class="phase next">
+        <header><span class="lvl">Phase 3 &middot; next</span><span class="cnt"></span></header>
+        <h3>OpenShift</h3>
+        <ul class="tasks">
+          <li class="task"><span class="box"></span>Create a Developer Sandbox project</li>
+          <li class="task"><span class="box"></span>Make the image run as a non-root user</li>
+          <li class="task"><span class="box"></span><span>Deploy the Helm chart with <code>oc</code></span></li>
+          <li class="task"><span class="box"></span>Expose the service with a Route</li>
+        </ul>
+      </article>
+
+      <article class="phase">
+        <header><span class="lvl">Phase 4 &middot; planned</span><span class="cnt"></span></header>
+        <h3>Config pack CLI</h3>
+        <ul class="tasks">
+          <li class="task"><span class="box"></span>Define a schema for gates, stands and carousels</li>
+          <li class="task"><span class="box"></span>Validate and diff definitions</li>
+          <li class="task"><span class="box"></span>Upload with dry-run and rollback</li>
+        </ul>
+      </article>
+
+      <article class="phase">
+        <header><span class="lvl">Phase 5 &middot; planned</span><span class="cnt"></span></header>
+        <h3>Troubleshooting</h3>
+        <ul class="tasks">
+          <li class="task"><span class="box"></span>Break deployments on purpose</li>
+          <li class="task"><span class="box"></span>Read logs and events to find the cause</li>
+          <li class="task"><span class="box"></span>Write root-cause notes and escalation messages</li>
+        </ul>
+      </article>
+
+      <article class="phase">
+        <header><span class="lvl">Phase 6 &middot; planned</span><span class="cnt"></span></header>
+        <h3>AI-assisted analysis</h3>
+        <ul class="tasks">
+          <li class="task"><span class="box"></span>AI log triage with human review</li>
+          <li class="task"><span class="box"></span>Stage-gate readiness checker</li>
+          <li class="task"><span class="box"></span>Draft config from a customer requirement</li>
+        </ul>
+      </article>
+
+      <article class="phase">
+        <header><span class="lvl">Phase 7 &middot; planned</span><span class="cnt"></span></header>
+        <h3>Documentation</h3>
+        <ul class="tasks">
+          <li class="task"><span class="box"></span>Deployment runbook</li>
+          <li class="task"><span class="box"></span>Short training guide for operators</li>
+          <li class="task"><span class="box"></span>Lessons learned</li>
+        </ul>
+      </article>
+    </div>
   </section>
 
-  <section class="slide">
-    <span class="tag">Progress</span>
-    <h2>What works today</h2>
-    <p class="lead">The flight service runs as a container image and answers the full API.</p>
-    <table>
-      <tr><th>Endpoint</th><th>Behaviour</th></tr>
-      <tr><td><code>GET /health</code></td><td>Liveness check, used later by Kubernetes probes</td></tr>
-      <tr><td><code>GET /flights</code></td><td>List flights</td></tr>
-      <tr><td><code>POST /flights</code></td><td>201 on create, 409 if duplicate, 422 on invalid body</td></tr>
-      <tr><td><code>PATCH /flights/{no}</code></td><td>Update gate, 404 if the flight does not exist</td></tr>
-    </table>
-    <p style="color:var(--muted)">Known limitation: data lives in memory and is lost on restart, and replicas do not share it. See the key lesson on the next slide.</p>
+  <section id="progress">
+    <span class="secnum">06</span>
+    <h1>What works today</h1>
+    <div class="chips"><span class="chip">Runs as a container</span><span class="chip">Helm release on kind</span></div>
+    <p class="lead">The flight service runs as a container image on a local cluster, managed by Helm.</p>
+    <div class="panel">
+      <table>
+        <tr><th>Endpoint</th><th>Behaviour</th></tr>
+        <tr><td><code>GET /health</code></td><td>Liveness and readiness check used by Kubernetes probes</td></tr>
+        <tr><td><code>GET /flights</code></td><td>List flights</td></tr>
+        <tr><td><code>POST /flights</code></td><td>201 on create, 409 if duplicate, 422 on an invalid body</td></tr>
+        <tr><td><code>PATCH /flights/{no}</code></td><td>Update the gate, 404 if the flight does not exist</td></tr>
+      </table>
+    </div>
+    <p class="note">Known limitation: data lives in memory. See the key lesson next.</p>
   </section>
 
-  <section class="slide">
-    <span class="tag">Key lesson</span>
-    <h2>One shared notebook: keep state outside the pod</h2>
-    <p class="lead">Observed in Phase 2: two replicas behind one Service gave different answers to the same request.</p>
+  <section id="lesson">
+    <span class="secnum">07</span>
+    <h1>One shared notebook: keep state outside the pod</h1>
+    <div class="chips"><span class="chip">Observed in Phase 2</span><span class="chip">Stateless vs stateful</span></div>
+    <p class="lead">Two replicas behind one Service gave different answers to the same request.</p>
     <div class="grid">
-      <div class="card"><h3>What happened</h3><p>A flight was created through the Service. It landed in one pod's memory. Eight identical <code>GET /flights</code> calls from inside the cluster returned the flight 4 times and an empty list 4 times.</p></div>
+      <div class="card"><h3>What happened</h3><p>A flight was created through the Service and landed in one pod's memory. Eight identical <code>GET /flights</code> calls from inside the cluster returned the flight 4 times and an empty list 4 times.</p></div>
       <div class="card"><h3>Why</h3><p>Each pod keeps flights in its own memory, like two pizza makers with two separate notebooks. The Service spreads requests across both.</p></div>
       <div class="card"><h3>The fix</h3><p>Move the data out of the pod into a shared database (PostgreSQL), so every replica reads and writes the same notebook.</p></div>
     </div>
-    <table>
-      <tr><th></th><th>Meaning</th><th>Our flight service</th></tr>
-      <tr><td><strong>Stateless</strong></td><td>A pod remembers nothing. Copy it as often as needed.</td><td>What it should be</td></tr>
-      <tr><td><strong>Stateful</strong></td><td>Stores data. Copying it is hard and needs care.</td><td>The database</td></tr>
-    </table>
-    <p style="color:var(--muted)">Today the service is meant to be stateless but keeps state in memory, the worst of both worlds. The database is planned for a later phase. Phase 2 stays focused on deployment mechanics, and the flaw is documented on purpose. Scaling to one replica would hide the symptom but remove redundancy.</p>
-    <p style="color:var(--muted)">In an implementation role, spotting this kind of symptom and naming its cause ("state is not shared between replicas") is exactly the diagnosis a customer needs.</p>
+    <div class="panel" style="margin-top:16px">
+      <table>
+        <tr><th></th><th>Meaning</th><th>Our flight service</th></tr>
+        <tr><td><strong>Stateless</strong></td><td>A pod remembers nothing. Copy it as often as needed.</td><td>What it should be</td></tr>
+        <tr><td><strong>Stateful</strong></td><td>Stores data. Copying it is hard and needs care.</td><td>The database</td></tr>
+      </table>
+    </div>
+    <p class="note" style="margin-top:16px">Today the service is meant to be stateless but keeps state in memory, the worst of both worlds. The database is planned for a later phase; Phase 2 stayed focused on deployment mechanics and the flaw is documented on purpose. Scaling to one replica would hide the symptom but remove redundancy.</p>
+    <p class="note">In an implementation role, naming the cause of a symptom like this ("state is not shared between replicas") is exactly the diagnosis a customer needs.</p>
   </section>
 
-  <section class="slide">
-    <span class="tag">Role alignment</span>
-    <h2>Skills this project exercises</h2>
+  <section id="skills">
+    <span class="secnum">08</span>
+    <h1>Role alignment</h1>
+    <div class="chips"><span class="chip">Implementation engineering</span></div>
     <div class="grid">
       <div class="card"><h3>Deployment and commissioning</h3><p>Install, configure and verify services in container platforms.</p></div>
       <div class="card"><h3>Configuration management</h3><p>Validate and upload system definitions with dry-run and rollback.</p></div>
-      <div class="card"><h3>Troubleshooting</h3><p>Read application and platform logs, find root cause, decide to fix or escalate.</p></div>
+      <div class="card"><h3>Troubleshooting</h3><p>Read application and platform logs, find the root cause, decide whether to fix or escalate.</p></div>
       <div class="card"><h3>Documentation and training</h3><p>Runbooks and short guides written for operators and customer staff.</p></div>
       <div class="card"><h3>AI-enabled working</h3><p>Use AI to speed up analysis while keeping judgment and verification human.</p></div>
       <div class="card"><h3>Integration thinking</h3><p>Understand how operational subsystems depend on each other.</p></div>
     </div>
   </section>
 
-  <section class="slide">
-    <span class="tag">Way of working</span>
-    <h2>How the project is built</h2>
-    <ul>
-      <li>One Git branch per phase, small commits with conventional prefixes (<code>feat:</code>, <code>docs:</code>).</li>
-      <li>Every phase ends with a short self-check on the concepts behind it.</li>
-      <li>Failures are treated as material: each broken state becomes a troubleshooting exercise.</li>
-      <li>Documentation is written as the work happens, not afterwards.</li>
-    </ul>
+  <section id="workflow">
+    <span class="secnum">09</span>
+    <h1>Way of working</h1>
+    <div class="chips"><span class="chip">Branch per phase</span><span class="chip">Verify everything</span></div>
+    <div class="panel">
+      <table>
+        <tr><th>Practice</th><th>How it shows</th></tr>
+        <tr><td>Small, clear commits</td><td>Conventional prefixes such as <code>feat:</code> and <code>docs:</code></td></tr>
+        <tr><td>Branch per phase</td><td>Merged into <code>main</code> only when the phase works</td></tr>
+        <tr><td>Self-check per phase</td><td>A short quiz on the concepts behind each step</td></tr>
+        <tr><td>Failures as material</td><td>Every broken state becomes a troubleshooting exercise</td></tr>
+        <tr><td>Documentation while working</td><td>Notes and comments are written as the work happens</td></tr>
+      </table>
+    </div>
   </section>
 
 </main>
-
-<div class="nav">
-  <button id="prev" aria-label="Previous slide">&larr; Prev</button>
-  <span id="count"></span>
-  <button id="next" aria-label="Next slide">Next &rarr;</button>
 </div>
 
 <script>
-  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
-  var i = 0;
-  try { var saved = parseInt(location.hash.slice(1), 10); if (saved >= 1 && saved <= slides.length) i = saved - 1; } catch (e) {}
-  function show(n) {
-    i = Math.max(0, Math.min(slides.length - 1, n));
-    slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
-    document.getElementById('count').textContent = (i + 1) + ' / ' + slides.length;
-    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
-    history.replaceState(null, '', '#' + (i + 1));
-  }
-  document.getElementById('prev').onclick = function () { show(i - 1); };
-  document.getElementById('next').onclick = function () { show(i + 1); };
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(i + 1); }
-    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i - 1); }
-    if (e.key === 'Home') show(0);
-    if (e.key === 'End') show(slides.length - 1);
-  });
-  show(i);
+  // Roadmap progress: count the checked tasks.
+  (function () {
+    var all = document.querySelectorAll('.task');
+    var done = document.querySelectorAll('.task.done');
+    document.getElementById('progress-text').textContent = done.length + ' / ' + all.length + ' tasks';
+    document.getElementById('progress-bar').style.width = (all.length ? done.length / all.length * 100 : 0) + '%';
+    document.querySelectorAll('.phase').forEach(function (p) {
+      var t = p.querySelectorAll('.task').length, d = p.querySelectorAll('.task.done').length;
+      p.querySelector('.cnt').textContent = d + '/' + t;
+    });
+  })();
+
+  // Left menu: highlight the section that is in view.
+  (function () {
+    var links = {};
+    document.querySelectorAll('nav a').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var sections = Array.prototype.slice.call(document.querySelectorAll('main section'));
+    function setActive(id) {
+      Object.keys(links).forEach(function (k) { links[k].classList.toggle('active', k === id); });
+    }
+    function update() {
+      var y = window.scrollY + window.innerHeight * 0.3, current = sections[0].id;
+      sections.forEach(function (s) { if (s.offsetTop <= y) current = s.id; });
+      setActive(current);
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
 </script>
 </body>
 </html>
