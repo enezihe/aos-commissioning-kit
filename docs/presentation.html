@@ -127,7 +127,7 @@
     <div class="chips">
       <span class="chip">Hands-on project</span>
       <span class="chip">Kubernetes &amp; OpenShift</span>
-      <span class="chip">Phase 3 of 7 complete</span>
+      <span class="chip">Phase 4 of 7 complete</span>
     </div>
     <p class="lead">Deploying, configuring and troubleshooting a mini Airport Operational System. An implementation engineer's day is not only writing code: it is deploying, configuring, validating, diagnosing and explaining.</p>
     <div class="grid">
@@ -236,18 +236,18 @@
         </ul>
       </article>
 
-      <article class="phase next">
-        <header><span class="lvl">Phase 4 &middot; next</span><span class="cnt"></span></header>
+      <article class="phase">
+        <header><span class="lvl">Phase 4 &middot; done</span><span class="cnt"></span></header>
         <h3>Config pack CLI</h3>
         <ul class="tasks">
-          <li class="task"><span class="box"></span>Define a schema for gates, stands and carousels</li>
-          <li class="task"><span class="box"></span>Validate and diff definitions</li>
-          <li class="task"><span class="box"></span>Upload with dry-run and rollback</li>
+          <li class="task done"><span class="box"></span>Define rules for terminals, gates, carousels and airlines</li>
+          <li class="task done"><span class="box"></span>Validate and diff definitions by meaning</li>
+          <li class="task done"><span class="box"></span>Upload with dry-run default, versions and rollback</li>
         </ul>
       </article>
 
-      <article class="phase">
-        <header><span class="lvl">Phase 5 &middot; planned</span><span class="cnt"></span></header>
+      <article class="phase next">
+        <header><span class="lvl">Phase 5 &middot; next</span><span class="cnt"></span></header>
         <h3>Troubleshooting</h3>
         <ul class="tasks">
           <li class="task"><span class="box"></span>Break deployments on purpose</li>
@@ -292,7 +292,22 @@
         <tr><td><code>PATCH /flights/{no}</code></td><td>Update the gate, 404 if the flight does not exist</td></tr>
       </table>
     </div>
-    <p class="note">Known limitation: data lives in memory. See the key lesson next.</p>
+    <h3 style="margin-top:28px">Config pack tool</h3>
+    <p class="lead" style="margin-bottom:16px">A command line tool checks airport definitions before they reach a cluster and keeps every uploaded version, so a change can be reviewed and undone.</p>
+    <div class="panel">
+      <table>
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td><code>validate</code></td><td>Checks field rules and cross rules (unknown terminal, duplicate gate, unknown gate). Exit code 0 means valid, 1 means problems.</td></tr>
+        <tr><td><code>diff</code></td><td>Shows what would change (+ added, - removed, ~ changed), matching items by id rather than by line.</td></tr>
+        <tr><td><code>upload</code></td><td>Validates, shows the target and the changes, and stores a new version as a ConfigMap. Dry-run unless <code>--apply</code> is given.</td></tr>
+        <tr><td><code>history</code>, <code>rollback</code></td><td>Lists stored versions and makes an older one live again. Archived versions are never deleted.</td></tr>
+      </table>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="card"><h3>Safe defaults</h3><p>No default namespace, the target is always printed, nothing is written without <code>--apply</code>, and a confirmation defaults to No.</p></div>
+      <div class="card"><h3>Tested</h3><p>24 automated tests run against a fake cluster. Breaking the dry-run guard or the confirmation makes a test fail.</p></div>
+    </div>
+    <p class="note" style="margin-top:16px">Known limitations: the flight service does not read this config yet, and data in the service is in memory. See the key lesson next.</p>
   </section>
 
   <section id="lesson">
