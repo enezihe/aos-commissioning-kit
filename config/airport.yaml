@@ -1,0 +1,38 @@
+# Airport definition for a fictional airport.
+# This file is the "customer data": everything the system must know before go-live.
+
+airport:
+  code: GLB            # 3-letter airport code
+  name: Golbasi Intl
+
+terminals:
+  - id: T1
+    name: Domestic
+  - id: T2
+    name: International
+
+gates:
+  - id: A1
+    terminal: T1
+  - id: A2
+    terminal: T1
+  - id: A3
+    terminal: T1
+  - id: B1
+    terminal: T2
+  - id: B2
+    terminal: T2
+
+carousels:
+  - id: C1
+    terminal: T1
+  - id: C2
+    terminal: T2
+
+airlines:
+  - code: TK           # 2-letter airline code
+    name: Example Air
+    gates: [A1, A2, B1]
+  - code: PC
+    name: Sample Wings
+    gates: [A3]
