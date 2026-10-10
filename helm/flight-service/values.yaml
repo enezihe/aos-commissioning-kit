@@ -20,3 +20,5 @@ resources:
   limits:                  # the most the pod may use
     cpu: 200m
     memory: 128Mi
+route:
+  enabled: false     # OpenShift only; kind has no Route resource

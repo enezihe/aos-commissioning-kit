@@ -112,8 +112,9 @@
       <li><a href="#roadmap"><span class="n">05</span>Roadmap</a></li>
       <li><a href="#progress"><span class="n">06</span>What works today</a></li>
       <li><a href="#lesson"><span class="n">07</span>Key lesson</a></li>
-      <li><a href="#skills"><span class="n">08</span>Role alignment</a></li>
-      <li><a href="#workflow"><span class="n">09</span>Way of working</a></li>
+      <li><a href="#openshift"><span class="n">08</span>OpenShift findings</a></li>
+      <li><a href="#skills"><span class="n">09</span>Role alignment</a></li>
+      <li><a href="#workflow"><span class="n">10</span>Way of working</a></li>
     </ol>
   </nav>
 </aside>
@@ -126,7 +127,7 @@
     <div class="chips">
       <span class="chip">Hands-on project</span>
       <span class="chip">Kubernetes &amp; OpenShift</span>
-      <span class="chip">Phase 2 of 7 complete</span>
+      <span class="chip">Phase 3 of 7 complete</span>
     </div>
     <p class="lead">Deploying, configuring and troubleshooting a mini Airport Operational System. An implementation engineer's day is not only writing code: it is deploying, configuring, validating, diagnosing and explaining.</p>
     <div class="grid">
@@ -224,19 +225,19 @@
         </ul>
       </article>
 
-      <article class="phase next">
-        <header><span class="lvl">Phase 3 &middot; next</span><span class="cnt"></span></header>
+      <article class="phase">
+        <header><span class="lvl">Phase 3 &middot; done</span><span class="cnt"></span></header>
         <h3>OpenShift</h3>
         <ul class="tasks">
-          <li class="task"><span class="box"></span>Create a Developer Sandbox project</li>
-          <li class="task"><span class="box"></span>Make the image run as a non-root user</li>
-          <li class="task"><span class="box"></span><span>Deploy the Helm chart with <code>oc</code></span></li>
-          <li class="task"><span class="box"></span>Expose the service with a Route</li>
+          <li class="task done"><span class="box"></span>Log in to a Developer Sandbox project with <code>oc</code></li>
+          <li class="task done"><span class="box"></span>Diagnose and fix the image pull failure (build inside the cluster)</li>
+          <li class="task done"><span class="box"></span>Deploy the Helm chart with an OpenShift values file</li>
+          <li class="task done"><span class="box"></span>Expose the service over HTTPS with a Route</li>
         </ul>
       </article>
 
-      <article class="phase">
-        <header><span class="lvl">Phase 4 &middot; planned</span><span class="cnt"></span></header>
+      <article class="phase next">
+        <header><span class="lvl">Phase 4 &middot; next</span><span class="cnt"></span></header>
         <h3>Config pack CLI</h3>
         <ul class="tasks">
           <li class="task"><span class="box"></span>Define a schema for gates, stands and carousels</li>
@@ -280,8 +281,8 @@
   <section id="progress">
     <span class="secnum">06</span>
     <h1>What works today</h1>
-    <div class="chips"><span class="chip">Runs as a container</span><span class="chip">Helm release on kind</span></div>
-    <p class="lead">The flight service runs as a container image on a local cluster, managed by Helm.</p>
+    <div class="chips"><span class="chip">Runs as a container</span><span class="chip">kind and OpenShift</span></div>
+    <p class="lead">The flight service runs as a container image, managed by Helm, on a local kind cluster and on a Red Hat OpenShift cluster, where it is reachable over a public HTTPS route.</p>
     <div class="panel">
       <table>
         <tr><th>Endpoint</th><th>Behaviour</th></tr>
@@ -315,8 +316,30 @@
     <p class="note">In an implementation role, naming the cause of a symptom like this ("state is not shared between replicas") is exactly the diagnosis a customer needs.</p>
   </section>
 
-  <section id="skills">
+  <section id="openshift">
     <span class="secnum">08</span>
+    <h1>What OpenShift taught us</h1>
+    <div class="chips"><span class="chip">Phase 3</span><span class="chip">Troubleshooting log</span></div>
+    <p class="lead">The same Helm chart that worked on kind needed four findings before it ran on OpenShift. Each one is a typical commissioning situation.</p>
+    <div class="grid">
+      <div class="card"><h3>1. ImagePullBackOff</h3><p>The image only existed on the laptop and inside kind. The pod events showed the pull from docker.io failing. Fix: build the image inside the cluster (BuildConfig and ImageStream) and point the chart at the internal registry.</p></div>
+      <div class="card"><h3>2. Random non-root user</h3><p>OpenShift ran the image with a random user ID in group 0, although the Dockerfile never asked for it. It worked because the service only reads files. A service that writes files would fail with permission denied.</p></div>
+      <div class="card"><h3>3. The sandbox sleeps</h3><p>After a few days the Deployment was scaled to zero and the login token had expired, but the Helm release, build and image survived. Scaling up and logging in again restored the service in minutes because everything lives in code.</p></div>
+      <div class="card"><h3>4. Route instead of Ingress</h3><p>A Route exposes the service over HTTPS. It exists only on OpenShift, so the chart creates it only when <code>route.enabled</code> is true.</p></div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <table>
+        <tr><th>Same chart</th><th>kind (values.yaml)</th><th>OpenShift (values-openshift.yaml)</th></tr>
+        <tr><td>Image source</td><td>Loaded into the node</td><td>Internal registry, built in the cluster</td></tr>
+        <tr><td>Public access</td><td>Port-forward</td><td>HTTPS Route</td></tr>
+        <tr><td>Chart templates</td><td colspan="2">Identical in both environments</td></tr>
+      </table>
+    </div>
+    <p class="note" style="margin-top:16px">Not done yet: the Dockerfile still builds a root-oriented image and the Route has no authentication. Hardening is a follow-up.</p>
+  </section>
+
+  <section id="skills">
+    <span class="secnum">09</span>
     <h1>Role alignment</h1>
     <div class="chips"><span class="chip">Implementation engineering</span></div>
     <div class="grid">
@@ -330,7 +353,7 @@
   </section>
 
   <section id="workflow">
-    <span class="secnum">09</span>
+    <span class="secnum">10</span>
     <h1>Way of working</h1>
     <div class="chips"><span class="chip">Branch per phase</span><span class="chip">Verify everything</span></div>
     <div class="panel">

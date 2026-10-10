@@ -1,0 +1,15 @@
+{{- if .Values.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: flight-service
+spec:
+  to:
+    kind: Service
+    name: flight-service
+  port:
+    targetPort: {{ .Values.containerPort }}         # the port the pod listens on
+  tls:
+    termination: edge       # HTTPS is handled by the OpenShift router
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}
