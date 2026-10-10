@@ -1,4 +1,4 @@
-"""Read a config file and check it against the rules in models.py."""
+"""Read a config (from a file or from text) and check it against the rules in models.py."""
 from pathlib import Path
 from typing import List
 
@@ -9,7 +9,7 @@ from aosconfig.models import AirportConfig
 
 
 class ConfigError(Exception):
-    """The config file cannot be used. `problems` is a list of readable messages."""
+    """The config cannot be used. `problems` is a list of readable messages."""
 
     def __init__(self, problems: List[str]):
         super().__init__("; ".join(problems))
@@ -30,13 +30,10 @@ def _readable(error: ValidationError) -> List[str]:
     return lines
 
 
-def load_config(path: Path) -> AirportConfig:
-    """Return a valid config, or raise ConfigError with every problem found."""
-    if not path.is_file():
-        raise ConfigError([f"file not found: {path}"])
-
+def parse_config(text: str) -> AirportConfig:
+    """Return a valid config from YAML text, or raise ConfigError with every problem found."""
     try:
-        data = yaml.safe_load(path.read_text())
+        data = yaml.safe_load(text)
     except yaml.YAMLError as exc:
         raise ConfigError([f"not valid YAML: {exc}"])
 
@@ -47,3 +44,10 @@ def load_config(path: Path) -> AirportConfig:
         return AirportConfig(**data)
     except ValidationError as exc:
         raise ConfigError(_readable(exc))
+
+
+def load_config(path: Path) -> AirportConfig:
+    """Same as parse_config, but reads the text from a file."""
+    if not path.is_file():
+        raise ConfigError([f"file not found: {path}"])
+    return parse_config(path.read_text())
