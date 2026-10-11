@@ -92,6 +92,8 @@ The upload and rollback tests use a fake cluster, so they never touch a real one
 
 ## Known limits
 
-- The flight service does not read this config yet.
+- The flight service reads the live config (`airport-config`) and rejects gates that are
+  unknown or not allowed for the airline. It picks up a new version about a minute after
+  an upload, without restarting. The ConfigMap must be in the same namespace as the service.
 - `rollback` simply makes a stored version live, so it can also move forward.
 - The tool must be run from this folder (it is not installed as a package).

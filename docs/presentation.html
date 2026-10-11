@@ -189,7 +189,7 @@
   <section id="roadmap">
     <span class="secnum">05</span>
     <h1>Roadmap</h1>
-    <div class="chips"><span class="chip">8 phases</span><span class="chip">26 tasks</span></div>
+    <div class="chips"><span class="chip">8 phases</span><span class="chip">27 tasks</span></div>
     <p class="lead">The roadmap shows only what is really finished. Checked boxes are work that ran and was verified.</p>
     <div class="progress"><span id="progress-text">0 / 0 tasks</span><div class="bar"><i id="progress-bar"></i></div></div>
 
@@ -243,6 +243,7 @@
           <li class="task done"><span class="box"></span>Define rules for terminals, gates, carousels and airlines</li>
           <li class="task done"><span class="box"></span>Validate and diff definitions by meaning</li>
           <li class="task done"><span class="box"></span>Upload with dry-run default, versions and rollback</li>
+          <li class="task done"><span class="box"></span>Let the flight service check gates against the live config, without a restart</li>
         </ul>
       </article>
 
@@ -288,7 +289,7 @@
         <tr><th>Endpoint</th><th>Behaviour</th></tr>
         <tr><td><code>GET /health</code></td><td>Liveness and readiness check used by Kubernetes probes</td></tr>
         <tr><td><code>GET /flights</code></td><td>List flights</td></tr>
-        <tr><td><code>POST /flights</code></td><td>201 on create, 409 if duplicate, 422 on an invalid body</td></tr>
+        <tr><td><code>POST /flights</code></td><td>201 on create, 409 if duplicate, 422 on an invalid body or on a gate the airport config does not allow</td></tr>
         <tr><td><code>PATCH /flights/{no}</code></td><td>Update the gate, 404 if the flight does not exist</td></tr>
       </table>
     </div>
@@ -307,7 +308,7 @@
       <div class="card"><h3>Safe defaults</h3><p>No default namespace, the target is always printed, nothing is written without <code>--apply</code>, and a confirmation defaults to No.</p></div>
       <div class="card"><h3>Tested</h3><p>24 automated tests run against a fake cluster. Breaking the dry-run guard or the confirmation makes a test fail.</p></div>
     </div>
-    <p class="note" style="margin-top:16px">Known limitations: the flight service does not read this config yet, and data in the service is in memory. See the key lesson next.</p>
+    <p class="note" style="margin-top:16px">Known limitation: data in the service is in memory. See the key lesson next.</p>
   </section>
 
   <section id="lesson">
