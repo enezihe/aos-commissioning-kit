@@ -2,7 +2,7 @@
 # The image is built inside the cluster and stored in its internal registry.
 image:
   repository: image-registry.openshift-image-registry.svc:5000/claarke-dev/flight-service
-  tag: "0.1"
+  tag: "0.2"
 
 route:
   enabled: true

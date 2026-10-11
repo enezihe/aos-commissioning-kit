@@ -1,0 +1,4 @@
+# Only needed to run the tests. The Docker image installs requirements.txt alone.
+-r requirements.txt
+pytest
+httpx

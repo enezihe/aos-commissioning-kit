@@ -5,7 +5,7 @@ replicaCount: 2            # how many pods to keep running
 
 image:
   repository: flight-service
-  tag: "0.1"
+  tag: "0.2"
   pullPolicy: IfNotPresent # use the image already present on the node
 
 containerPort: 8000        # port uvicorn listens on inside the container
@@ -20,5 +20,11 @@ resources:
   limits:                  # the most the pod may use
     cpu: 200m
     memory: 128Mi
+
 route:
   enabled: false     # OpenShift only; kind has no Route resource
+
+config:
+  enabled: true                  # mount the airport config so the service can check gates
+  configMapName: airport-config  # the live ConfigMap that aos-config upload maintains
+  mountPath: /etc/aos            # the file appears as /etc/aos/airport.yaml

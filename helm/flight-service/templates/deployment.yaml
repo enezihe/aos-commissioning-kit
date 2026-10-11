@@ -38,3 +38,20 @@ spec:
           # requests = what the pod needs at least, limits = the most it may use.
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.config.enabled }}
+          # The service reads the airport config from this file to check gates.
+          env:
+            - name: AOS_CONFIG_PATH
+              value: {{ .Values.config.mountPath }}/airport.yaml
+          volumeMounts:
+            - name: airport-config
+              mountPath: {{ .Values.config.mountPath }}
+              readOnly: true
+          {{- end }}
+      {{- if .Values.config.enabled }}
+      volumes:
+        - name: airport-config
+          configMap:
+            name: {{ .Values.config.configMapName }}
+            optional: true         # pods still start if no config was uploaded yet
+      {{- end }}
