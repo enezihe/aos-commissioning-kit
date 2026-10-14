@@ -1,5 +1,7 @@
 # AOS Commissioning Kit
 
+[![CI](https://github.com/enezihe/aos-commissioning-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/enezihe/aos-commissioning-kit/actions/workflows/ci.yml)
+
 A hands-on project that practises the work of an implementation engineer: deploy, configure and
 troubleshoot a small **Airport Operational System (AOS)** on Kubernetes and Red Hat OpenShift, check
 that it is ready for go-live, and diagnose faults from logs and events.
@@ -138,7 +140,7 @@ The set covers two kinds of work: **designing** a solution (architecture, decisi
 | Platform | Kubernetes (kind), Red Hat OpenShift Developer Sandbox | Where does it run, and what differs between them? | In use |
 | Reliability checks | Readiness gate, incident playbook | Is it ready, and what do I do when it is not? | In use |
 | AI-assisted diagnosis | Claude API with schema-checked answers | Can a model speed up triage without being trusted blindly? | In use |
-| Automation | GitHub Actions | Do tests, `helm lint` and the image build run on every push? | Planned |
+| Automation | GitHub Actions | Do tests, `helm lint` and the image build run on every push? | In use |
 | Observability | Prometheus and Grafana | What do the service's metrics say, and what are its SLIs? | Planned |
 | Reliability targets | SLIs, SLOs and an error budget | How reliable must it be, and when do we stop shipping? | Planned |
 | Architecture | ADRs and C4 diagrams in `docs/architecture` | Why was each choice made, and what was the alternative? | Planned |
