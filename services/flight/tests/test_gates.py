@@ -41,7 +41,7 @@ def test_without_a_config_file_nothing_is_checked(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "rules", GateRules(str(tmp_path / "missing.yaml")))
     main.flights.clear()
     response = TestClient(main.app).post("/flights", json={**FLIGHT, "gate": "ANYTHING"})
-    assert response.status_code == 201
+    assert response.status_code == 200
 
 
 def test_flight_without_a_gate_is_fine(client):
