@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: services/flight
+            python: "3.12"
+            requirements: requirements-dev.txt
+          # The pinned versions in this project's requirements.txt were frozen on Python 3.9
+          # (click 8.1.8) and do not install on 3.10 or newer.
+          - project: tools/aos-config
+            python: "3.9"
+            requirements: requirements.txt
+          - project: tools/aos-ops
+            python: "3.12"
+            requirements: requirements.txt
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: ${{ matrix.project }}/${{ matrix.requirements }}
+      - name: Install dependencies
+        run: pip install -r ${{ matrix.requirements }}
+        working-directory: ${{ matrix.project }}
+      - name: Run tests
+        run: python -m pytest -v
+        working-directory: ${{ matrix.project }}
+
+  helm-lint:
+    name: Helm lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint the chart
+        run: helm lint helm/flight-service
+      - name: Lint the chart with the OpenShift values
+        run: helm lint helm/flight-service -f helm/flight-service/values-openshift.yaml
+
+  image:
+    name: Image builds and starts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the flight service image
+        run: docker build -t flight-service:ci services/flight
+      - name: Start it and ask /health
+        run: |
+          docker run -d --name smoke -p 8000:8000 flight-service:ci
+          for i in $(seq 1 20); do
+            if curl -fsS http://localhost:8000/health; then exit 0; fi
+            sleep 1
+          done
+          docker logs smoke
+          exit 1
