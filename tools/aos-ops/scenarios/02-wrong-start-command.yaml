@@ -1,0 +1,25 @@
+# Lab scenario for the incident playbook. Applied only to a local kind cluster, namespace lab.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: flight-service, namespace: lab}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: flight-service}}
+  template:
+    metadata: {labels: {app: flight-service}}
+    spec:
+      containers:
+        - name: flight-service
+          image: flight-service:0.2
+          imagePullPolicy: IfNotPresent
+          command: ["uvicorn", "app.main:application", "--host", "0.0.0.0", "--port", "8000"]
+          ports: [{containerPort: 8000}]
+          readinessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 3, periodSeconds: 5}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 200m, memory: 128Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: flight-service, namespace: lab}
+spec:
+  selector: {app: flight-service}
+  ports: [{port: 80, targetPort: 8000}]
