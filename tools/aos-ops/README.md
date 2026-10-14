@@ -61,8 +61,13 @@ model for a diagnosis, checks the answer, and writes a draft incident note.
 | Quote check | Every quote must appear in the evidence that was sent. If any quote is missing the draft is marked "do not trust" and the exit code is 1. |
 | Human in the loop | The note is labelled an AI draft. Nothing in the cluster is changed. |
 
+A recorded run on scenario 05 (Service selector mismatch, healthy pods) diagnosed `service_selector` with high
+confidence, quoted six lines of evidence and all six were found in the evidence (4,734 tokens in, 796 out,
+about $0.035). The draft note is in [examples/triage-service-selector.md](examples/triage-service-selector.md).
+
 The evidence is treated as data: the prompt tells the model to ignore instructions that appear inside it.
-The cost is estimated before sending and reported afterwards. The model can be set with `--model`
+The cost is estimated before sending and reported afterwards. The estimate counts only the text, so it is
+about half of the real input tokens (2,428 estimated against 4,734 in the recorded run). The model can be set with `--model`
 or `AOS_OPS_MODEL`.
 
 ## Lab: reproduce the six faults
