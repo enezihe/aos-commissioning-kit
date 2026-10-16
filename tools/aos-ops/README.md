@@ -66,8 +66,9 @@ confidence, quoted six lines of evidence and all six were found in the evidence 
 about $0.035). The draft note is in [examples/triage-service-selector.md](examples/triage-service-selector.md).
 
 The evidence is treated as data: the prompt tells the model to ignore instructions that appear inside it.
-The cost is estimated before sending and reported afterwards. The estimate counts only the text, so it is
-about half of the real input tokens (2,428 estimated against 4,734 in the recorded run). The model can be set with `--model`
+The cost is estimated before sending and reported afterwards. The estimate counts the system prompt, the
+evidence and the answer schema at 2 characters per token, calibrated on the recorded run (about 5 percent
+above the real count there); the real count comes back with the answer. The model can be set with `--model`
 or `AOS_OPS_MODEL`.
 
 ## Lab: reproduce the six faults
