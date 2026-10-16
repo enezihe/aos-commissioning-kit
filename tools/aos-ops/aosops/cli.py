@@ -99,7 +99,7 @@ def triage(
         _fail(f"CLUSTER ERROR: {exc}")
 
     user_message = triage_mod.build_user_message(complaint, evidence)
-    tokens = triage_mod.estimate_tokens(triage_mod.SYSTEM_PROMPT + user_message)
+    tokens = triage_mod.estimate_input_tokens(triage_mod.SYSTEM_PROMPT, user_message)
     typer.echo("\nEvidence collected (secrets already removed):")
     for e in evidence:
         cleaned = ", ".join(f"{n} {k}" for k, n in e.redactions.items()) or "nothing to remove"

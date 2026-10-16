@@ -1,3 +1,4 @@
+import json
 import os
 from dataclasses import dataclass
 from typing import List, Literal, Optional, Protocol
@@ -14,6 +15,9 @@ PRICES = {
     "claude-sonnet-5-5": (2.00, 10.00),
     "claude-haiku-5-5": (0.10, 0.50),
 }
+
+# Calibrated on one recorded run: 9,900 characters were 4,734 input tokens (2.09 per token). Rounded down so the estimate runs a little high.
+CHARS_PER_TOKEN = 2.0
 
 Category = Literal[
     "image_pull", "crash_on_start", "out_of_memory", "readiness_probe", "service_selector",
@@ -88,8 +92,14 @@ def build_user_message(customer_report: str, evidence: List[Evidence]) -> str:
 
 
 def estimate_tokens(text: str) -> int:
-    """A rough count (about 3.5 characters per token) so the cost can be shown before sending."""
-    return int(len(text) / 3.5) + 1
+    """A rough count (about 2 characters per token) so the cost can be shown before sending."""
+    return int(len(text) / CHARS_PER_TOKEN) + 1
+
+
+def estimate_input_tokens(system: str, user: str) -> int:
+    """Estimate for a whole request: the system prompt, the user message and the answer schema that is sent with them."""
+    schema = json.dumps(Diagnosis.model_json_schema())
+    return estimate_tokens(system + user + schema)
 
 
 def cost_usd(model: str, input_tokens: int, output_tokens: int) -> Optional[float]:

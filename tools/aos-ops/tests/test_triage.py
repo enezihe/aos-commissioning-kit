@@ -1,5 +1,6 @@
 """Redaction, evidence, the quote check and the triage command. Claude itself is replaced by a fake."""
 import json
+import os
 
 import pytest
 from typer.testing import CliRunner
@@ -325,3 +326,18 @@ def test_the_tool_only_ever_runs_read_only_commands(setup):
     runner.invoke(cli.app, ["triage", "-n", "lab", "--show-evidence"])
     verbs = {call[0] for call in kube.calls}
     assert verbs <= {"get", "describe", "logs", "exec"}
+
+
+# ------------------------------------------------------------------ the token estimate
+def test_the_estimate_uses_two_characters_per_token():
+    assert triage.estimate_tokens("x" * 2000) == 1001
+
+
+def test_the_estimate_counts_the_answer_schema():
+    system, user = "s" * 100, "u" * 100
+    assert triage.estimate_input_tokens(system, user) > triage.estimate_tokens(system + user)
+
+
+def test_the_estimate_is_close_to_the_recorded_run():
+    estimate = triage.estimate_tokens("x" * 9900)                  # the recorded run: 9,900 characters, 4,734 real tokens
+    assert 4260 <= estimate <= 5207                                # within 10 percent of the real count
