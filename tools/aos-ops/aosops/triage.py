@@ -1,10 +1,3 @@
-"""Ask Claude to diagnose a namespace from collected evidence, then check its answer.
-
-Three safeguards against a confident wrong answer:
-1. The answer must follow a fixed shape (Pydantic), with exact quotes from the evidence.
-2. We check every quote really appears in the evidence that was sent (verify_quotes).
-3. The result is written as a draft that a human must read before using it.
-"""
 import os
 from dataclasses import dataclass
 from typing import List, Literal, Optional, Protocol
