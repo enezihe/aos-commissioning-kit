@@ -145,7 +145,7 @@ The set covers two kinds of work: **designing** a solution (architecture, decisi
 | Reliability targets | SLIs, SLOs and an error budget | How reliable must it be, and when do we stop shipping? | Planned |
 | Architecture | ADRs and C4 diagrams in `docs/architecture` | Why was each choice made, and what was the alternative? | Planned |
 | State | PostgreSQL | How do replicas share data? (fixes the known limitation) | Planned |
-| Supply chain | Trivy image scan | Does the image ship known vulnerabilities? | Planned |
+| Supply chain | Trivy image scan | Does the image ship known vulnerabilities? | In use |
 
 ## Roadmap
 
