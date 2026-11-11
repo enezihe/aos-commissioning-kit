@@ -74,6 +74,7 @@ only reads from the cluster and only leaves the laptop when `--send` is given.
 | `tools/aos-config` | Python CLI that validates the config by field and cross rules, shows a semantic diff, uploads it as a versioned ConfigMap (dry run by default) and rolls back. [README](tools/aos-config/README.md) |
 | `tools/aos-ops` | Read-only readiness gate, evidence collection with secret removal, and AI triage that drafts an incident note. [README](tools/aos-ops/README.md) |
 | `docs/incidents` | Six faults reproduced on purpose and diagnosed with commands only, plus a playbook. [Playbook](docs/incidents/README.md) |
+| `docs/architecture` | C4 context and container diagrams and four decision records. [Index](docs/architecture/README.md) |
 | `docs/presentation.html` | Slide deck that walks through the project. |
 
 ## Quick start (local)
@@ -143,7 +144,7 @@ The set covers two kinds of work: **designing** a solution (architecture, decisi
 | Automation | GitHub Actions | Do tests, `helm lint` and the image build run on every push? | In use |
 | Observability | Prometheus and Grafana | What do the service's metrics say, and what are its SLIs? | Planned |
 | Reliability targets | SLIs, SLOs and an error budget | How reliable must it be, and when do we stop shipping? | Planned |
-| Architecture | ADRs and C4 diagrams in `docs/architecture` | Why was each choice made, and what was the alternative? | Planned |
+| Architecture | ADRs and C4 diagrams in `docs/architecture` | Why was each choice made, and what was the alternative? | In use |
 | State | PostgreSQL | How do replicas share data? (fixes the known limitation) | Planned |
 | Supply chain | Trivy image scan | Does the image ship known vulnerabilities? | In use |
 
