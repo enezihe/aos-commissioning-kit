@@ -24,7 +24,7 @@ Putting a customer's operational system into production fails in predictable way
 
 ## Who uses it, and for what
 
-The user is an **implementation (forward deployed) engineer** who brings a customer's system into
+The user is an **implementation engineer** who brings a customer's system into
 production and then supports it, and the **on-call engineer** who is paged when it breaks.
 
 1. **Before go-live:** validate the customer's airport file, upload it as a versioned config, deploy the service with Helm.
@@ -78,7 +78,7 @@ only reads from the cluster and only leaves the laptop when `--send` is given.
 
 ## Quick start (local)
 
-Requirements: Docker, kind, kubectl, Helm, Python 3.
+Requirements: Docker, kind, kubectl, Helm, Python 3.12 or newer.
 
 ```bash
 kind create cluster --name aos-dev

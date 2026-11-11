@@ -23,10 +23,8 @@ jobs:
           - project: services/flight
             python: "3.12"
             requirements: requirements-dev.txt
-          # The pinned versions in this project's requirements.txt were frozen on Python 3.9
-          # (click 8.1.8) and do not install on 3.10 or newer.
           - project: tools/aos-config
-            python: "3.9"
+            python: "3.12"
             requirements: requirements.txt
           - project: tools/aos-ops
             python: "3.12"
