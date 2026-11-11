@@ -1,5 +1,9 @@
 FROM python:3.12-slim
 
+# Pick up fixed Debian packages that the base image has not rebuilt with yet.
+RUN apt-get update && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY requirements.txt .
