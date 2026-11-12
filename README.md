@@ -18,7 +18,7 @@ Putting a customer's operational system into production fails in predictable way
 | Bad customer data is found late | A flight is assigned to a gate that does not exist; duplicate ids; a gate that belongs to no terminal | `aos-config validate` checks the airport file by field and cross rules **before** it reaches a cluster, and `diff` shows the change by meaning |
 | "Is it ready for go-live?" is a feeling, not a result | Different engineers check different things | `aos-ops gate` runs the same checklist every time and returns an exit code, so a pipeline can use it |
 | Config changes cannot be undone | A wrong upload leaves the system in an unknown state | Every upload is a numbered ConfigMap version; `rollback` restores an older one. Dry run is the default |
-| Diagnosis is slow and inconsistent | Engineers jump to a guess, or collect different evidence each time | One method (look, why, application, connection, think, verify), six reproduced faults with notes, and `aos-ops triage` that collects the same evidence every time |
+| Diagnosis is slow and inconsistent | Engineers jump to a guess, or collect different evidence each time | One method (look, why, application, connection, think, verify), seven reproduced faults with notes, and `aos-ops triage` that collects the same evidence every time |
 | Operations tools are dangerous | Wrong cluster or namespace, an accidental delete | The target is printed first, a namespace is always required, and `aos-ops` refuses every kubectl verb except `get`, `describe`, `logs` and `exec` |
 | Knowledge stays in one person's head | The next engineer starts from zero | Each fault ends in an incident note: evidence, root cause, fix, who to escalate to, how to prevent it |
 
@@ -73,7 +73,7 @@ only reads from the cluster and only leaves the laptop when `--send` is given.
 | `config/airport.yaml` | The "customer data" for a fictional airport: terminals, gates, carousels, airlines. |
 | `tools/aos-config` | Python CLI that validates the config by field and cross rules, shows a semantic diff, uploads it as a versioned ConfigMap (dry run by default) and rolls back. [README](tools/aos-config/README.md) |
 | `tools/aos-ops` | Read-only readiness gate, evidence collection with secret removal, and AI triage that drafts an incident note. [README](tools/aos-ops/README.md) |
-| `docs/incidents` | Six faults reproduced on purpose and diagnosed with commands only, plus a playbook. [Playbook](docs/incidents/README.md) |
+| `docs/incidents` | Seven faults reproduced on purpose and diagnosed with commands only, plus a playbook. [Playbook](docs/incidents/README.md) |
 | `docs/architecture` | C4 context and container diagrams and four decision records. [Index](docs/architecture/README.md) |
 | `docs/presentation.html` | Slide deck that walks through the project. |
 
@@ -97,7 +97,14 @@ python -m aosconfig validate ../../config/airport.yaml
 python -m aosconfig upload ../../config/airport.yaml -n default --apply
 cd ../..
 
-# 3. Install the chart and check readiness
+# 3. Create the database login. The chart never holds the password: it reads this Secret.
+#    Without it the pods stay in CreateContainerConfigError (see docs/incidents/07)
+kubectl create secret generic flight-db \
+  --from-literal=POSTGRES_USER=flight \
+  --from-literal=POSTGRES_DB=flight \
+  --from-literal=POSTGRES_PASSWORD="$(openssl rand -hex 16)"
+
+# 4. Install the chart and check readiness
 helm install flight helm/flight-service
 cd tools/aos-ops
 python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
@@ -113,7 +120,7 @@ python -m aosops gate -n default
 | 2. Kubernetes and Helm | Manifests with probes and limits; Helm chart; upgrade and rollback practised |
 | 3. OpenShift | Deployed to the Red Hat Developer Sandbox with a Route and an OpenShift values file |
 | 4. Config tool | `aos-config` with rules, diff, versions and rollback; the service validates gates from the live config |
-| 5. Broken deployments | Six faults diagnosed from evidence; incident notes and a playbook |
+| 5. Broken deployments | Seven faults diagnosed from evidence; incident notes and a playbook |
 | 6. Readiness and triage | `aos-ops gate` (fixed rules) and `aos-ops triage` (AI draft with quote verification) |
 | 7. Documentation | This README, the per-tool READMEs and the incident playbook |
 
@@ -126,8 +133,11 @@ python -m aosops gate -n default
 - **AI is a draft, not an authority.** Evidence is cleaned of secrets before it leaves the computer, the
   model must answer in a fixed shape with exact quotes, and every quote is checked against the evidence.
   A draft with an unverifiable quote is marked "do not trust".
-- **Known limitation.** The flight service keeps its data in memory, so replicas do not share flights.
-  This is kept on purpose to show why state must live outside the pod; a database is the next step.
+- **State lives outside the pod.** Flights are stored in PostgreSQL, so both replicas return the same
+  list and the data survives deleting a pod. The login comes from a Kubernetes Secret, never from the
+  image or the chart values. Without `DB_HOST` the service falls back to memory (tests, local runs).
+- **Known limitation.** The PostgreSQL pod is a single replica with no backups, and it is only verified
+  on kind. On the OpenShift sandbox the database is switched off in `values-openshift.yaml`.
 
 ## Technology set
 
@@ -145,7 +155,7 @@ The set covers two kinds of work: **designing** a solution (architecture, decisi
 | Observability | Prometheus and Grafana | What do the service's metrics say, and what are its SLIs? | Planned |
 | Reliability targets | SLIs, SLOs and an error budget | How reliable must it be, and when do we stop shipping? | Planned |
 | Architecture | ADRs and C4 diagrams in `docs/architecture` | Why was each choice made, and what was the alternative? | In use |
-| State | PostgreSQL | How do replicas share data? (fixes the known limitation) | Planned |
+| State | PostgreSQL | How do replicas share data? | In use |
 | Supply chain | Trivy image scan | Does the image ship known vulnerabilities? | In use |
 
 ## Roadmap
@@ -154,7 +164,7 @@ Work is split into small pieces, each one issue with a clear "done" test, tracke
 repository's GitHub Project board. Planned order:
 
 1. CI with GitHub Actions: tests, `helm lint`, image build.
-2. PostgreSQL for flight data, so replicas share state.
+2. PostgreSQL for flight data, so replicas share state. (done)
 3. `/metrics` endpoint, Prometheus and a Grafana dashboard.
 4. Two SLOs with alerts, and a short burn-rate runbook.
 5. ADRs and C4 diagrams for the decisions above.

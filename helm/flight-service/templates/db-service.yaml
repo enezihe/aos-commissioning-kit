@@ -1,0 +1,13 @@
+{{- if .Values.db.enabled }}
+# A stable name (flight-db) for the database pod. The service connects to this name.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.db.serviceName }}
+spec:
+  selector:
+    app: {{ .Values.db.serviceName }}
+  ports:
+    - port: 5432
+      targetPort: 5432
+{{- end }}

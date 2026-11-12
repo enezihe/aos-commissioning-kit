@@ -33,13 +33,13 @@ def config_file(tmp_path):
 def client(config_file, monkeypatch):
     """A client whose service reads gate rules from a temporary config file."""
     monkeypatch.setattr(main, "rules", GateRules(str(config_file)))
-    main.flights.clear()
+    main.store.clear()
     return TestClient(main.app)
 
 
 def test_without_a_config_file_nothing_is_checked(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "rules", GateRules(str(tmp_path / "missing.yaml")))
-    main.flights.clear()
+    main.store.clear()
     response = TestClient(main.app).post("/flights", json={**FLIGHT, "gate": "ANYTHING"})
     assert response.status_code == 201
 

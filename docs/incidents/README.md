@@ -1,6 +1,6 @@
 # Incident playbook
 
-Six faults, reproduced on purpose in a lab namespace and diagnosed with commands only.
+Seven faults, reproduced on purpose in a lab namespace and diagnosed with commands only.
 Each note lists the evidence (real command output), the root cause, the fix, who to escalate
 to, and how to prevent it. This page is the quick way in: find the symptom, then read the note.
 
@@ -14,6 +14,7 @@ to, and how to prevent it. This page is the quick way in: find the symptom, then
 | `OOMKilled` / `CrashLoopBackOff` | climbing, each run lasts about a second | **empty**, exit code 137 | Memory limit too low | [04](04-oomkilled-memory-limit-too-low.md) |
 | `Running`, `READY 1/1`, but connections are refused | 0 | normal | Service selector matches no pod | [05](05-service-selector-mismatch.md) |
 | `ContainerCreating` that does not move | 0 | none, "waiting to start" | A required ConfigMap is missing | [06](06-missing-configmap-containercreating.md) |
+| `CreateContainerConfigError` | 0 | none, "waiting to start" | A Secret the pod reads is missing | [07](07-missing-secret-createcontainerconfigerror.md) |
 
 ## The method (same order every time)
 
@@ -46,7 +47,7 @@ to, and how to prevent it. This page is the quick way in: find the symptom, then
 
 ## The prevention that appears in every note
 
-All six faults came from **hand-written manifests**, never from the Helm chart. Keep each
+Faults 01 to 06 came from **hand-written manifests**, never from the Helm chart. Fault 07 is different: the chart is correct and the install order was wrong. Keep each
 value in one place (the chart), render and check it before deploying, and after every deploy
 check three things: `READY` equals the desired count, `get endpoints` is not empty, and the
 service answers through its own Service name.

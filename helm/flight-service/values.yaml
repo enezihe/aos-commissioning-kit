@@ -5,7 +5,7 @@ replicaCount: 2            # how many pods to keep running
 
 image:
   repository: flight-service
-  tag: "0.2"
+  tag: "0.3"
   pullPolicy: IfNotPresent # use the image already present on the node
 
 containerPort: 8000        # port uvicorn listens on inside the container
@@ -28,3 +28,20 @@ config:
   enabled: true                  # mount the airport config so the service can check gates
   configMapName: airport-config  # the live ConfigMap that aos-config upload maintains
   mountPath: /etc/aos            # the file appears as /etc/aos/airport.yaml
+
+db:
+  enabled: true                  # run PostgreSQL next to the service so replicas share flights
+  serviceName: flight-db         # the name the service uses to reach the database
+  secretName: flight-db          # Secret with POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB.
+                                 # Create it before installing; the chart never holds the password.
+  image:
+    repository: postgres
+    tag: 16-alpine
+  storage: 1Gi                   # size of the disk that keeps the data
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi

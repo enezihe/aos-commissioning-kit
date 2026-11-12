@@ -21,10 +21,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.containerPort }}
-          # Readiness: only send traffic once the app answers /health.
+          # Readiness: only send traffic once the app answers. With a database, /ready also
+          # checks that the database answers, so a pod that cannot reach it gets no traffic.
           readinessProbe:
             httpGet:
-              path: /health
+              path: {{ if .Values.db.enabled }}/ready{{ else }}/health{{ end }}
               port: {{ .Values.containerPort }}
             initialDelaySeconds: 3
             periodSeconds: 5
@@ -38,11 +39,40 @@ spec:
           # requests = what the pod needs at least, limits = the most it may use.
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.config.enabled }}
-          # The service reads the airport config from this file to check gates.
+          {{- if or .Values.config.enabled .Values.db.enabled }}
           env:
+            {{- if .Values.config.enabled }}
+            # The service reads the airport config from this file to check gates.
             - name: AOS_CONFIG_PATH
               value: {{ .Values.config.mountPath }}/airport.yaml
+            {{- end }}
+            {{- if .Values.db.enabled }}
+            # Where the database is. Not secret, so it lives in the chart.
+            - name: DB_HOST
+              value: {{ .Values.db.serviceName }}
+            - name: DB_PORT
+              value: "5432"
+            # The login comes from a Secret that exists before the install. It is not in the
+            # image and not in the chart values. If the Secret is missing, the pod stays in
+            # CreateContainerConfigError (see docs/incidents/07).
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secretName }}
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secretName }}
+                  key: POSTGRES_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secretName }}
+                  key: POSTGRES_DB
+            {{- end }}
+          {{- end }}
+          {{- if .Values.config.enabled }}
           volumeMounts:
             - name: airport-config
               mountPath: {{ .Values.config.mountPath }}
