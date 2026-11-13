@@ -1,0 +1,19 @@
+{{- if .Values.metrics.serviceMonitor.enabled }}
+# ServiceMonitor: tells the Prometheus Operator what to scrape. It follows the Service to its
+# endpoints, so every ready pod is scraped on its own (the Service itself is never asked,
+# because it would answer from a different pod each time).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flight-service
+  labels:
+    app: flight-service
+spec:
+  selector:
+    matchLabels:
+      app: flight-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.metrics.serviceMonitor.interval }}
+{{- end }}

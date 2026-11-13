@@ -5,7 +5,7 @@ replicaCount: 2            # how many pods to keep running
 
 image:
   repository: flight-service
-  tag: "0.3"
+  tag: "0.4"
   pullPolicy: IfNotPresent # use the image already present on the node
 
 containerPort: 8000        # port uvicorn listens on inside the container
@@ -28,6 +28,15 @@ config:
   enabled: true                  # mount the airport config so the service can check gates
   configMapName: airport-config  # the live ConfigMap that aos-config upload maintains
   mountPath: /etc/aos            # the file appears as /etc/aos/airport.yaml
+
+metrics:
+  # Both need the Prometheus Operator in the cluster (see observability/README.md), so they are
+  # off by default: the chart must still install on a cluster that has no monitoring.
+  serviceMonitor:
+    enabled: false               # tell Prometheus to scrape every pod behind the Service
+    interval: 15s                # how often Prometheus asks /metrics
+  dashboard:
+    enabled: false               # ship the Grafana dashboard as a ConfigMap that Grafana picks up
 
 db:
   enabled: true                  # run PostgreSQL next to the service so replicas share flights

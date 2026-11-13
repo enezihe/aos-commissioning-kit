@@ -3,11 +3,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flight-service
+  labels:
+    app: flight-service      # the ServiceMonitor finds this Service by this label
 spec:
   # Send traffic to every pod that carries this label.
   # It must match the labels in deployment.yaml.
   selector:
     app: flight-service
   ports:
-    - port: {{ .Values.service.port }}            # the port clients use to reach the Service
+    - name: http                                  # the ServiceMonitor refers to the port by this name
+      port: {{ .Values.service.port }}            # the port clients use to reach the Service
       targetPort: {{ .Values.containerPort }}     # the port the container listens on

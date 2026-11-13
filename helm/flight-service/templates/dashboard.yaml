@@ -1,0 +1,13 @@
+{{- if .Values.metrics.dashboard.enabled }}
+# The Grafana dashboard as a ConfigMap. Grafana's sidecar loads every ConfigMap that carries
+# the label grafana_dashboard, so the dashboard is installed and versioned with the chart.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flight-service-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  flight-service.json: |-
+{{ .Files.Get "dashboards/flight-service.json" | indent 4 }}
+{{- end }}
