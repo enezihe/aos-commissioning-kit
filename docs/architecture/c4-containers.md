@@ -15,7 +15,12 @@ flowchart LR
     ARCH[("ConfigMaps airport-config-vN<br/>archive of every version")]
     SVC["Service / Route"]
     POD["flight-service x2<br/>Python, FastAPI<br/>probes, resource limits"]
+    DB[("flight-db<br/>PostgreSQL, StatefulSet<br/>1 Gi volume")]
+    SEC[("Secret flight-db<br/>login")]
     SVC --> POD
+    POD -->|"SQL"| DB
+    SEC -. "env vars" .-> POD
+    SEC -. "env vars" .-> DB
     CM -. "mounted at /etc/aos" .-> POD
   end
 
@@ -34,11 +39,11 @@ flowchart LR
 |---|---|---|
 | `aos-config` | Python, Typer, Pydantic | Checks the airport file by field and cross rules, shows a semantic diff, uploads a numbered version, rolls back. Dry run by default. |
 | `aos-ops` | Python, Typer | Read-only readiness gate; collects evidence, removes secrets, asks for a diagnosis draft and verifies its quotes. |
-| `flight-service` | Python, FastAPI, Docker | Lists, creates and updates flights; rejects a gate the airport config does not allow (HTTP 422). Keeps data in memory. |
+| `flight-service` | Python, FastAPI, Docker | Lists, creates and updates flights; rejects a gate the airport config does not allow (HTTP 422). Stores flights in PostgreSQL; `/ready` checks the database. |
+| `flight-db` | PostgreSQL 16, StatefulSet | The one place flights are stored, on a persistent volume. Login comes from the Secret `flight-db`. |
 | `airport-config` | ConfigMap | The live airport file the service reads at `/etc/aos/airport.yaml`. |
 | `airport-config-vN` | ConfigMaps | One archive copy per uploaded version, never deleted. |
 | Helm chart | Helm | Deployment, Service and (OpenShift only) Route, with values per environment. |
 
 ## Known limitation
-The flight service keeps data in memory, so replicas do not share flights. A database is on the
-roadmap (issue #2).
+The database is a single pod with no replication or backups, and it is only verified on kind.
