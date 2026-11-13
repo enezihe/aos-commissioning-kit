@@ -4,9 +4,11 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from app.gates import rules
+from app.metrics import METRICS_PATH, metrics_response, record_request
 from app.store import Flight, FlightExists, store_from_env
 
 app = FastAPI(title="Flight Service")
+app.middleware("http")(record_request)
 
 
 class FlightUpdate(BaseModel):
@@ -38,6 +40,12 @@ def ready():
     except Exception:
         raise HTTPException(status_code=503, detail="database not reachable")
     return {"status": "ready"}
+
+
+@app.get(METRICS_PATH, include_in_schema=False)
+def metrics():
+    """Request counts and latency for Prometheus. See app/metrics.py."""
+    return metrics_response()
 
 
 @app.get("/flights")

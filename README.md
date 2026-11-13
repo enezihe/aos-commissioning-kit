@@ -67,14 +67,15 @@ only reads from the cluster and only leaves the laptop when `--send` is given.
 
 | Path | What it is |
 |---|---|
-| `services/flight` | FastAPI flight service: list, create and update flights; checks gates against the mounted airport config (422 on a gate the airport does not allow); `/health` endpoint. Dockerfile and tests. |
+| `services/flight` | FastAPI flight service: list, create and update flights; checks gates against the mounted airport config (422 on a gate the airport does not allow); `/health`, `/ready` and `/metrics` endpoints. Dockerfile and tests. |
 | `k8s/` | Plain Kubernetes Deployment and Service with probes and resource limits. |
-| `helm/flight-service` | Helm chart (`values.yaml` for kind, `values-openshift.yaml` with a Route for OpenShift). |
+| `helm/flight-service` | Helm chart (`values.yaml` for kind, `values-openshift.yaml` with a Route for OpenShift). Optional `ServiceMonitor` and Grafana dashboard. |
+| `observability/` | Values for the Prometheus and Grafana stack on kind, and how to install and check it. [README](observability/README.md) |
 | `config/airport.yaml` | The "customer data" for a fictional airport: terminals, gates, carousels, airlines. |
 | `tools/aos-config` | Python CLI that validates the config by field and cross rules, shows a semantic diff, uploads it as a versioned ConfigMap (dry run by default) and rolls back. [README](tools/aos-config/README.md) |
 | `tools/aos-ops` | Read-only readiness gate, evidence collection with secret removal, and AI triage that drafts an incident note. [README](tools/aos-ops/README.md) |
 | `docs/incidents` | Seven faults reproduced on purpose and diagnosed with commands only, plus a playbook. [Playbook](docs/incidents/README.md) |
-| `docs/architecture` | C4 context and container diagrams and four decision records. [Index](docs/architecture/README.md) |
+| `docs/architecture` | C4 context and container diagrams and the decision records. [Index](docs/architecture/README.md) |
 | `docs/presentation.html` | Slide deck that walks through the project. |
 
 ## Quick start (local)
@@ -86,11 +87,11 @@ kind create cluster --name aos-dev
 kubectl get nodes                                    # STATUS must be Ready
 
 # 1. Build the image and load it into the cluster
-docker build -t flight-service:0.2 services/flight
-kind load docker-image flight-service:0.2 --name aos-dev
+docker build -t flight-service:0.4 services/flight
+kind load docker-image flight-service:0.4 --name aos-dev
 
-# 2. Upload the airport config first: the chart mounts the ConfigMap airport-config,
-#    and the pods stay in ContainerCreating without it (see docs/incidents/06)
+# 2. Upload the airport config: the chart mounts the ConfigMap airport-config and the service
+#    checks gates against it. Without it the pods still start, but no gate is checked
 cd tools/aos-config
 python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 python -m aosconfig validate ../../config/airport.yaml
@@ -109,6 +110,20 @@ helm install flight helm/flight-service
 cd tools/aos-ops
 python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 python -m aosops gate -n default
+```
+
+## Monitoring (optional)
+
+Prometheus and Grafana are installed separately, then switched on for the service with two chart
+values. The steps, the metrics and the dashboard are described in
+[observability/README.md](observability/README.md).
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install monitoring prometheus-community/kube-prometheus-stack --version 93.2.2 \
+  -n monitoring --create-namespace -f observability/kube-prometheus-stack-values.yaml --wait
+helm upgrade --install flight helm/flight-service \
+  --set metrics.serviceMonitor.enabled=true --set metrics.dashboard.enabled=true
 ```
 
 ## Phases
@@ -136,6 +151,9 @@ python -m aosops gate -n default
 - **State lives outside the pod.** Flights are stored in PostgreSQL, so both replicas return the same
   list and the data survives deleting a pod. The login comes from a Kubernetes Secret, never from the
   image or the chart values. Without `DB_HOST` the service falls back to memory (tests, local runs).
+- **Metrics by route, not by address.** The service counts and times every request and exposes it on
+  `/metrics`. The path label is the route template, so the number of time series stays fixed. Prometheus
+  scrapes each pod on its own; Grafana shows rate, errors and latency.
 - **Known limitation.** The PostgreSQL pod is a single replica with no backups, and it is only verified
   on kind. On the OpenShift sandbox the database is switched off in `values-openshift.yaml`.
 
@@ -152,7 +170,7 @@ The set covers two kinds of work: **designing** a solution (architecture, decisi
 | Reliability checks | Readiness gate, incident playbook | Is it ready, and what do I do when it is not? | In use |
 | AI-assisted diagnosis | Claude API with schema-checked answers | Can a model speed up triage without being trusted blindly? | In use |
 | Automation | GitHub Actions | Do tests, `helm lint` and the image build run on every push? | In use |
-| Observability | Prometheus and Grafana | What do the service's metrics say, and what are its SLIs? | Planned |
+| Observability | Prometheus and Grafana (`observability/`) | How many requests, how many fail, how slow are they? | In use |
 | Reliability targets | SLIs, SLOs and an error budget | How reliable must it be, and when do we stop shipping? | Planned |
 | Architecture | ADRs and C4 diagrams in `docs/architecture` | Why was each choice made, and what was the alternative? | In use |
 | State | PostgreSQL | How do replicas share data? | In use |
@@ -165,7 +183,7 @@ repository's GitHub Project board. Planned order:
 
 1. CI with GitHub Actions: tests, `helm lint`, image build.
 2. PostgreSQL for flight data, so replicas share state. (done)
-3. `/metrics` endpoint, Prometheus and a Grafana dashboard.
+3. `/metrics` endpoint, Prometheus and a Grafana dashboard. (done)
 4. Two SLOs with alerts, and a short burn-rate runbook.
 5. ADRs and C4 diagrams for the decisions above.
 6. Image scan in CI.

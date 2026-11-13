@@ -22,6 +22,10 @@ flowchart LR
     SEC -. "env vars" .-> POD
     SEC -. "env vars" .-> DB
     CM -. "mounted at /etc/aos" .-> POD
+    PROM["Prometheus<br/>kube-prometheus-stack"]
+    GRAF["Grafana<br/>dashboard from a ConfigMap"]
+    PROM -->|"scrapes /metrics on every pod"| POD
+    GRAF -->|"PromQL"| PROM
   end
 
   HELM["Helm chart<br/>helm/flight-service"] --> POD
@@ -39,10 +43,12 @@ flowchart LR
 |---|---|---|
 | `aos-config` | Python, Typer, Pydantic | Checks the airport file by field and cross rules, shows a semantic diff, uploads a numbered version, rolls back. Dry run by default. |
 | `aos-ops` | Python, Typer | Read-only readiness gate; collects evidence, removes secrets, asks for a diagnosis draft and verifies its quotes. |
-| `flight-service` | Python, FastAPI, Docker | Lists, creates and updates flights; rejects a gate the airport config does not allow (HTTP 422). Stores flights in PostgreSQL; `/ready` checks the database. |
+| `flight-service` | Python, FastAPI, Docker | Lists, creates and updates flights; rejects a gate the airport config does not allow (HTTP 422). Stores flights in PostgreSQL; `/ready` checks the database; `/metrics` reports request count and latency. |
 | `flight-db` | PostgreSQL 16, StatefulSet | The one place flights are stored, on a persistent volume. Login comes from the Secret `flight-db`. |
 | `airport-config` | ConfigMap | The live airport file the service reads at `/etc/aos/airport.yaml`. |
 | `airport-config-vN` | ConfigMaps | One archive copy per uploaded version, never deleted. |
+| Prometheus | kube-prometheus-stack (optional) | Scrapes `/metrics` on every flight-service pod through a `ServiceMonitor`. |
+| Grafana | kube-prometheus-stack (optional) | Shows rate, errors and latency. The dashboard is a ConfigMap shipped by the flight-service chart. |
 | Helm chart | Helm | Deployment, Service and (OpenShift only) Route, with values per environment. |
 
 ## Known limitation

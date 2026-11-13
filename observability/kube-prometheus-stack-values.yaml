@@ -1,0 +1,35 @@
+# Values for the kube-prometheus-stack chart on a local kind cluster.
+# It installs the Prometheus Operator, Prometheus, Alertmanager and Grafana in one release.
+
+prometheus:
+  prometheusSpec:
+    # By default Prometheus only reads ServiceMonitors and rules that carry this release's label.
+    # Switching that off lets it read the ones the flight-service chart creates in any namespace.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    retention: 2d                 # a lab does not need more history than this
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+      limits:
+        memory: 1Gi
+
+grafana:
+  defaultDashboardsTimezone: browser
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard    # load every ConfigMap with this label as a dashboard
+      searchNamespace: ALL        # the flight-service dashboard lives in the service's namespace
+
+# kind hides these control-plane parts from Prometheus, so their targets would always show as down.
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false

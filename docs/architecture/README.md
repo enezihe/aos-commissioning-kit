@@ -21,3 +21,4 @@ Each record has a context, the decision, the alternatives that were considered a
 | [0003](adr/0003-read-only-operations-tooling.md) | Make the operations tool read-only by construction |
 | [0004](adr/0004-ai-triage-with-quote-verification.md) | Use AI for triage drafts and verify every quote against the evidence |
 | [0005](adr/0005-postgresql-for-flight-data.md) | Store flights in PostgreSQL, with the login in a Secret |
+| [0006](adr/0006-prometheus-metrics-with-the-operator.md) | Expose request metrics and scrape them with the Prometheus Operator |

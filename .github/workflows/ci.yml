@@ -85,6 +85,8 @@ jobs:
         run: helm lint helm/flight-service
       - name: Lint the chart with the OpenShift values
         run: helm lint helm/flight-service -f helm/flight-service/values-openshift.yaml
+      - name: Lint the chart with monitoring switched on
+        run: helm lint helm/flight-service --set metrics.serviceMonitor.enabled=true --set metrics.dashboard.enabled=true
 
   image:
     name: Image builds and starts
